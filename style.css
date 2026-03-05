@@ -1,0 +1,212 @@
+/* デフォルト（ライトモード） */
+:root {
+    --bg-main: #f3e6c9;
+
+    --btn-bg: #fbf6ea;
+    --btn-border: #d8c6a6;
+    --btn-text: #4a3a2a;
+
+    --bg-card: #e8d6b3;
+
+    --text-main: #4a3a2a;
+    --text-sub: #6a5741;
+
+    --accent: #d28b00;
+
+    --card-border: #cdb990;
+
+    --tag-bg: #e2cfa7;
+    --tag-border: #c8b48a;
+    --tag-text: #4a3a2a;
+
+    --icon-bg: #f7eed9;
+    --igon-border: #cdb990;
+    --bodey-text: #5a4a36; /* 本文用 */
+}
+
+/* ダークモード */
+body.dark {
+    --bg-main: #2b2b2b;
+
+    --btn-bg: #3a3a3a;
+    --btn-border: #505050;
+    --btn-text: #ffffff;
+
+    --bg-card: #3a3a3a;
+
+    --text-main: #ffffff;
+    --text-sub: #cfcfcf;
+
+    --accent: #4a90e2;
+
+    --card-border: #505050;
+
+    --tag-bg: #2f2f2f;
+    --tag-border: #505050;
+    --tag-text: #dddddd;
+
+    --icon-bg: #1f1f1f;
+    --igon-border: #4a4a4a;
+    --bodey-text: #d6d6d6; /* 本文用 */
+}
+
+body{
+    background: var(--bg-main);
+    color: var(--text-main);
+}
+
+/* ジョブボタン */
+.job {
+    padding: 6px 12px;
+    margin: 4px;
+    border: 1px solid var(--btn-border);
+    background: var(--btn-bg);
+    cursor: pointer;
+}
+
+.role-row {
+    display: flex;
+    gap: 3px;
+}
+
+/* 押すと光る */
+
+.job.active-tank {
+  background: #2196f3;   /* 青 */
+  color: white;
+  border-color: #0f416b;
+}
+
+.job.active-healer {
+  background: #4caf50;   /* 緑 */
+  color: white;
+  border-color: #2f5f30;
+}
+
+.job.active-dps {
+  background: #e98f8f;   /* 赤 */
+  color: white;
+  border-color: #862a2a;
+}
+
+/* レベルスライダー */
+#statusBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+/* レベルスライダー初期状態 */
+#statusBar[hidden] {
+    display: none;
+}
+
+/* レベル */
+#lv {
+    width:150px;
+}
+
+/* 選んだジョブ */
+#currentJob {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* スキルリスト */
+#skillList{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* カード本体 */
+.skill-card{
+    background: var(--bg-card);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+}
+
+/* 上段レイアウト */
+.skill-top{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.skill-top-right{
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-sub);
+    opacity:0.9;
+}
+
+.skill-rigth-wrap{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.skill-duration{
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.time-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.time-item {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+
+/* アイコン枠（画像後で） */
+.skill-icon{
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: var(--icon-bg);
+    border: 1px solid var(--icon-border);
+    flex: 0 0 auto;
+}
+
+/* スキル名 */
+.skill-name{
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+/* タグ */
+.skill-tags{
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.tag{
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
+    color: var(--tag-text);
+}
+
+/* 本文 */
+.skill-body{
+    white-space: pre-line;
+    margin-top: 10px;
+    color: var(--body-text);
+    font-size: 14px;
+    line-height: 1.4;
+}

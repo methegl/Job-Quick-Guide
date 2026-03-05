@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>JQG-ジョブクイックガイド</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1>スキルクイックガイド（β版）</h1>
+        <h5>使い方：ジョブボタンをクリック▶スライダーを動かす</h5>
+        <h5>そのレベルで使える軽減・ヒールスキルが出ます</h5>
+        <h5>🌙と☀️のアイコンでダークモードの切り替えが可能です</h5>
+        <h5>※β版のためスキル情報が不完全な場合があります</h5>
+
+        <botton id="themeToggle">🌙</botton>
+
+        <!-- ジョブ選択エリア -->
+        <div id="jobSelect">
+
+            <!-- 上段　タンク＆ヒーラー -->
+            <div class="role-top">
+                <!-- TANK -->
+                <div class="role-row th">
+                    <button class="job" data-role="tank" data-job="PLD" data-name="ナイト">ナ</button>
+                    <button class="job" data-role="tank" data-job="WAR" data-name="戦士">戦</button>
+                    <button class="job" data-role="tank" data-job="DRK" data-name="暗黒騎士">暗</button>
+                    <button class="job" data-role="tank" data-job="GNB" data-name="ガンブレイカー">ガ</button>
+
+                    <button class="job" data-role="healer" data-job="WHM" data-name="白魔道士">白</button>
+                    <button class="job" data-role="healer" data-job="SCH" data-name="学者">学</button>
+                    <button class="job" data-role="healer" data-job="AST" data-name="占星術師">占</button>
+                    <button class="job" data-role="healer" data-job="SGE" data-name="賢者">賢</button>
+                </div>
+            </div>
+
+            <!-- DPS Melee -->
+            <div class="role-row dps">
+                <button class="job" data-role="dps" data-job="MNK" data-name="モンク">モ</button>
+                <button class="job" data-role="dps" data-job="SAM" data-name="侍">侍</button>
+                <button class="job" data-role="dps" data-job="DRG" data-name="竜騎士">竜</button>
+                <button class="job" data-role="dps" data-job="RPR" data-name="リーパー">リ</button>
+                <button class="job" data-role="dps" data-job="NIN" data-name="忍者">忍</button>
+                <button class="job" data-role="dps" data-job="VPR" data-name="ヴァイパー">ヴ</button>
+            </div>
+
+            <div class="role-under">
+                <!-- DPS Ranged -->
+                <div class="role-row dps">
+                    <button class="job" data-role="dps" data-job="BRD" data-name="詩人">詩</button>
+                    <button class="job" data-role="dps" data-job="MCH" data-name="機工士">機</button>
+                    <button class="job" data-role="dps" data-job="DNC" data-name="踊り子">踊</button>
+                    
+                    <button class="job" data-role="dps" data-job="BLM" data-name="黒魔道士">黒</button>
+                    <button class="job" data-role="dps" data-job="SMN" data-name="召喚士">召</button>
+                    <button class="job" data-role="dps" data-job="RDM" data-name="赤魔道士">赤</button>
+                    <button class="job" data-role="dps" data-job="PCT" data-name="ピクトマンサー">ピ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 現在選択中ジョブ表示 -->
+        <div id="statusBar" hidden>
+            <strong id="currentJob"></strong>
+            Lv:
+            <span id="lvValue">100</span>
+            <input id="lv" type="range" min="1" max="100" value="100">
+        </div>
+
+        <!-- スキル表示エリア -->
+         <div id="skillArea" hidden>
+            <div id="skillList" ></div>
+         </div>
+        <script src="app.js"></script>
+    </body>
+</html>
