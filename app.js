@@ -1,4 +1,4 @@
-console.log("app.js loaded v3");
+console.log("app.js loaded v0.0.2");
 
 // ============================
 // DOM取得
@@ -8,6 +8,20 @@ const lvValue = document.getElementById("lvValue");
 const statusBar = document.getElementById("statusBar");
 const skillArea = document.getElementById("skillArea");
 const skillList = document.getElementById("skillList");
+
+let sortMode = "level";
+const sortSelect = document.getElementById("sortSelect");
+
+sortSelect.addEventListener("change", () => {
+    sortMode = sortSelect.value;
+
+    //今選ばれてるジョブで描画しなおす
+    if (currentJobKey) {
+        renderSchSkills(currentJobKey);
+    }
+});
+
+let currentJobKey = null;
 
 // ============================
 // 初期hidden設定
@@ -32,7 +46,7 @@ function formatRecast(seconds) {
 
     //余りがあるなら90s(1m30s)
     return `${sec}s (${min}m${rem}s)`;
-}
+};
 
 function pickByLevel(valueOrList, currentLv) {
     // 1) 数値ならそのまま返す
@@ -47,6 +61,37 @@ function pickByLevel(valueOrList, currentLv) {
         if (currentLv >= item.minLevel) picked = item.value;
     }
     return picked;
+};
+
+// ============================
+// スキル範囲データ
+// ============================
+const ORIGIN_LABEL = {
+  self: "自分中心",
+  target: "対象中心",
+  pet: "妖精中心",
+  ground: "設置"
+};
+
+const SHAPE_LABEL = {
+  circle: "円",
+  cone: "扇",
+  line: "直線",
+  single: "単体"
+};
+
+// ============================
+// スキルカテゴリデータ
+// ============================
+
+const CATEGORY_ORDER = ["軽減","回復","バリア","その他"];
+
+function getCategory(skill) {
+    const tags = skill.tags ?? [];
+    if (tags.includes("軽減")) return "軽減";
+    if (tags.includes("バリア")) return "バリア";
+    if (tags.includes("回復")) return "ヒール";
+    return "その他";
 }
 
 // ============================
@@ -55,26 +100,34 @@ function pickByLevel(valueOrList, currentLv) {
     const PLD_SKILLS = [
     {
         name: "リプライザル",
-        minLv: 98,
-        group: "reprisal",
-        type: "player",
-        mpCost: null,
-        recast: 60,
-        recastType: "ogcd",
-        duration: 10,
-        tags:["軽減","アビリティ","ロールアクション"],
-        effect: "範囲内の敵の与ダメージ10%減少",
-        icon: "icons/RoleAction/TANK/Reprisal.png"
-    },
-    {
-        name: "リプライザル",
         minLv: 22,
         group: "reprisal",
         type: "player",
         mpCost: null,
         recast: 60,
         recastType: "ogcd",
+        duration: 10,
+
+        origin: "self",
+        shape: "circle",
+
+        tags:["軽減","アビリティ","ロールアクション"],
+        effect: "範囲内の敵の与ダメージ10%減少",
+        icon: "icons/RoleAction/TANK/Reprisal.png"
+    },
+    {
+        name: "リプライザル",
+        minLv: 98,
+        group: "reprisal",
+        type: "pleyre",
+        mpCost: null,
+        recast: 60,
+        recastType: "ogcd",
         duration: 15,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -94,6 +147,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 10,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -107,6 +164,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 15,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -126,6 +187,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 10,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -139,6 +204,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 15,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -158,6 +227,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 10,
+
+        origin: "player",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -171,6 +244,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 15,
+
+        origin: "player",
+        shape: "circle",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "範囲内の敵の与ダメージ10%減少",
         icon: "icons/RoleAction/TANK/Reprisal.png"
@@ -190,6 +267,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["蘇生","魔法"],
         effect: "対象を衰弱状態で蘇生",
         icon: "icons/WHM/Raise.png"
@@ -209,6 +290,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["回復","魔法"],
         effect: [
             {minLevel: 4, value:"対象のHP回復 回復力:400"},
@@ -225,6 +310,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["蘇生","魔法"],
         effect: "対象を衰弱状態で蘇生",
         icon: "icons/SCH/Resurrection.png"
@@ -238,6 +327,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 21,
+
+        origin: "pet",
+        shape: "circle",
+
         tags: ["回復","ペット","アビリティ"],
         effect: "範囲内のPTMにHoT付与 回復力:80\n[セラフィム召喚中]光輝の囁きに変化する ※効果は同じ",
         icon: "icons/SCH/Whispering_Dawn.png"
@@ -250,6 +343,10 @@ function pickByLevel(valueOrList, currentLv) {
         mpCost: 900,
         recastType: "gcd",
         duration: 30,
+
+        origin: "self",
+        shape: "single",
+
         tags:["回復","バリア","魔法"],
         effect: [
             {minLevel: 30, value:"対象のHP回復+バリア付与\n回復力:300 バリア:回復力の125%\n賢者の[エウクラシア系]と競合"},
@@ -265,6 +362,10 @@ function pickByLevel(valueOrList, currentLv) {
         mpCost: 900,
         recastType: "gcd",
         duration: 30,
+ 
+        origin: "self",
+        shape: "circle",
+
         tags:["回復","バリア","魔法"],
         effect: [
             {minLevel: 35, value:"範囲内のPTMのHP回復+バリア付与\n回復力:200 バリア:回復力の115%\n賢者の[エウクラシア系]と競合"},
@@ -281,6 +382,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 120,
         recastType: "ogcd",
         duration: 20,
+
+        origin: "pet",
+        shape: "circle",
+
         tags: ["軽減","ペット","アビリティ"],
         effect: "範囲内のPTMの[被魔法ダメージ]5%軽減/[回復魔法]の回復量10%UP\n[セラフィム召喚中]セラフィックイルミネーションに変化する ※効果は同じ",
         icon: "icons/SCH/Fey_Illumination.png"
@@ -294,6 +399,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "self",
+        shape: "single",
+
         tags: ["MP回復","アビリティ","フロー"],
         effect: "最大MPの20%回復\nエーテルフロー:3つ獲得",
         icon: "icons/SCH/Aetherflow.png"
@@ -307,6 +416,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 1,
         recastType: "ogcd",
         duration: null,
+
+        origin: "self",
+        shape: "target",
+
         tags: ["回復","アビリティ","フロー"],
         effect: "対象のHP回復 回復力:600\nエーテルフロー:1つ消費",
         icon: "icons/SCH/Lustrate.png"
@@ -320,6 +433,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 30,
         recastType: "ogcd",
         duration: 15,
+
+        origin: "ground",
+        shape: "circle",
+
         tags:["軽減","設置型","アビリティ","フロー"],
         effect: [
             {minLevel: 50, value:"エリア内10%軽減\nエーテルフロー:1つ消費"},
@@ -336,6 +453,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 30,
         recastType: "ogcd",
         duration: null,
+
+        origin: "self",
+        shape: "circle",
+
         tags: ["回復","アビリティ","フロー"],
         effect: "範囲内のPTMのHP回復 回復力:400\nエーテルフロー:1つ消費",
         icon: "icons/SCH/Indomitability.png"
@@ -352,6 +473,10 @@ function pickByLevel(valueOrList, currentLv) {
         ],
         recastType: "ogcd",
         duration: null,
+
+        origin: "target",
+        shape: "circle",
+
         tags:["ヒール補助","バリア","アビリティ"],
         effect: "対象の[鼓舞][士気]のバリアを周囲に拡散させる\n※効果時間は拡散された時間",
         icon: "icons/SCH/Deployment_Tactics.png"
@@ -365,6 +490,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 15,
         recastType: "ogcd",
         duration: 15,
+
+        origin: "self",
+        shape: "single",
+
         tags:["ヒール補助","アビリティ"],
         effect: "[鼓舞][士気]のバリア分を回復効果に置き換える",
         icon: "icons/SCH/Emergency_Tactics.png"
@@ -378,6 +507,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 180,
         recastType: "ogcd",
         duration: 30,
+
+        origin: "self",
+        shape: "single",
+
         tags:["バフ","フロー","ペット","アビリティ","ヒール補助"],
         effect: "召喚中の[フェアリー]を一時帰還//自身の[回復魔法効果]20%UP\n エーテルフロー:3つ獲得/[サモン・セラフィム中使用不可]/[効果終了時フェアリーの位置固定解除]",
         icon: "icons/SCH/Dissipation.png"
@@ -391,6 +524,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 45,
         recastType: "ogcd",
         duration: 45,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["回復","アビリティ","フロー"],
         effect: "対象のHPが50%以下or効果時間終了で回復発動 回復力:800",
         icon: "icons/SCH/Excogitation.png"
@@ -404,6 +541,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 120,
         recastType: "ogcd",
         duration: 20,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["シナジー","アビリティ"],
         effect: "対象のクリティカルヒットを受ける確率10%上昇",
         icon: "icons/SCH/Chain_Stratagem.png"
@@ -417,6 +558,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 3,
         recastType: "ogcd",
         duration: null,
+
+        origin: "pet",
+        shape: "single",
+
         tags: ["回復","ペット","アビリティ"],
         effect: "対象を継続回復 回復力:300\nフェイエーテル10ずつ消費 [セラフィム召喚中使用不可]",
         icon: "icons/SCH/Aetherpact.png"
@@ -433,6 +578,10 @@ function pickByLevel(valueOrList, currentLv) {
         ],
         recastType: "ogcd",
         duration: 15,
+
+        origin: "self",
+        shape: "single",
+
         tags:["ヒール補助","バフ","アビリティ"],
         effect: "効果時間中1回の[鼓舞][士気][不屈][深謀]の消費MP・消費フロー0\n対象スキルを確定クリティカル",
         icon: "icons/SCH/Recitation.png"
@@ -446,6 +595,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "pet",
+        shape: "circle",
+
         tags: ["回復","ペット","アビリティ"],
         effect: "範囲内のPTMのHP回復 回復力:320\n[セラフィム召喚中使用不可]",
         icon: "icons/SCH/Fey_Blessing.png"
@@ -459,6 +612,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 120,
         recastType: "ogcd",
         duration: 22,
+
+        origin: "pet",
+        shape: "single",
+
         tags: ["ペット強化","ペット","アビリティ"],
         effect: "[フェアリー]を一時帰還させ、[セラフィム]を召喚する\n(一部のフェアリースキルをセラフィム用のスキルに置き換える)",
         icon: "icons/SCH/Summon_Seraph.png"
@@ -472,6 +629,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 120,
         recastType: "ogcd",
         duration: 22,
+
+        origin: "pet",
+        shape: "circle",
+
         tags: ["回復","バリア","ペット","アビリティ"],
         effect: "範囲内のPTMTのHP回復+バリア付与 回復力:250 バリア:回復量の100%\n[最大チャージ2][サモン・セラフィム中のみ]",
         icon: "icons/SCH/Consolation.png"
@@ -485,6 +646,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: 10,
+
+        origin: "target",
+        shape: "single",
+
         tags:["回復","ヒール補助","バフ","アビリティ"],
         effect: "対象の[HP回復効果]と[最大HP]10%上昇/対象のHP10%回復",
         icon: "icons/SCH/Protraction.png"
@@ -501,6 +666,10 @@ function pickByLevel(valueOrList, currentLv) {
             {label: "疾風の計", value: 10 },
             {label: "怒涛の計", value: 20 }
         ],
+
+        origin: "self",
+        shape: "circle",
+
         tags:["軽減","スプリント","アビリティ"],
         effect: "範囲内のPTMに[疾風の計:10秒]スプリント+[怒涛の計:20秒]10%軽減",
         icon: "icons/SCH/Expedient.png"
@@ -514,6 +683,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: 30,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["回復","バリア","魔法"],
         effect: "範囲内のPTMのHP回復+バリア付与 回復力:200 バリア:回復力の180%",
         icon: "icons/SCH/Concitation.png"
@@ -527,6 +700,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 180,
         recastType: "ogcd",
         duration: 20,
+
+        origin: "self",
+        shape: "circle",
+
         tags:["回復","バリア"],
         effect: "[鼓舞][士気]を[マニフェステーション][アクセッション]に強化\n範囲内のPTMにHoT付与/[応急戦術]のリキャストを1秒に短縮",
         icon: "icons/SCH/Seraphism.png"
@@ -540,6 +717,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: 30,
+
+        origin: "target",
+        shape: "single",
+
         tags:["回復","バリア","魔法"],
         effect: "範囲内のPTMのHP回復+バリア付与 回復力:360 バリア:回復力の180%\n賢者の[エウクラシア系]と競合\n[セラフィズム効果中のみ][秘策]効果対象外",
         icon: "icons/SCH/Manifestation.png"
@@ -553,6 +734,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: 30,
+
+        origin: "target",
+        shape: "circle",
+
         tags:["回復","バリア","魔法"],
         effect: "範囲内のPTMのHP回復+バリア付与 回復力:240 バリア:回復力の180%\n賢者の[エウクラシア系]と競合\n[セラフィズム効果中のみ][秘策]効果対象外",
         icon: "icons/SCH/Accession.png"
@@ -566,6 +751,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 3,
         recastType: "ogcd",
         duration: null,
+
+        origin: "pet",
+        shape: "single",
+
         tags:["回復","魔法","ペット","オートヒール"],
         effect: [
             {minLevel: 1, value:"対象のHPを回復する 回復力:150"},
@@ -588,6 +777,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["蘇生","魔法"],
         effect: "対象を衰弱状態で蘇生",
         icon: "icons/AST/Ascend.png"
@@ -607,6 +800,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["蘇生","魔法"],
         effect: "対象を衰弱状態で蘇生",
         icon: "icons/SEG/Egeiro.png"
@@ -626,6 +823,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -648,6 +849,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -670,6 +875,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -692,6 +901,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -714,6 +927,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -736,6 +953,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -758,6 +979,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -780,6 +1005,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -802,6 +1031,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 60,
         recastType: "ogcd",
         duration: null,
+
+        origin: "player",
+        shape: "single",
+
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
             {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
@@ -823,26 +1056,28 @@ function pickByLevel(valueOrList, currentLv) {
         mpCost: null,
         recast: 90,
         recastType: "ogcd",
-        duration: [
-            {minLevel:8, value: 10},
-            {minLevel:98, value: 15}
-        ],
+        duration: 10,
+
+        origin: "target",
+        shape: "single",
+        
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
         icon: "icons/RoleAction/CASTER/Addle.png"
     },            
         {
         name: "アドル",
-        minLv: 8,
+        minLv: 98,
         group: "addole",
         type: "player",
         mpCost: null,
         recast: 90,
         recastType: "ogcd",
-        duration: [
-            {minLevel:8, value: 10},
-            {minLevel:98, value: 15}
-        ],
+        duration: 15,
+        
+        origin: "target",
+        shape: "single",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
         icon: "icons/RoleAction/CASTER/Addle.png"
@@ -863,6 +1098,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["蘇生","魔法"],
         effect: "対象を衰弱状態で蘇生",
         icon: "icons/SMN/Resurrection.png"
@@ -882,6 +1121,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: null,
         recastType: "gcd",
         duration: null,
+
+        origin: "target",
+        shape: "single",
+
         tags: ["蘇生","魔法"],
         effect: "対象を衰弱状態で蘇生",
         icon: "icons/RDM/Verraise.png"
@@ -902,6 +1145,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 90,
         recastType: "ogcd",
         duration: 10,
+
+        origin: "target",
+        shape: "single",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
         icon: "icons/RoleAction/CASTER/Addle.png"
@@ -915,6 +1162,10 @@ function pickByLevel(valueOrList, currentLv) {
         recast: 90,
         recastType: "ogcd",
         duration: 15,
+
+        origin: "target",
+        shape: "single",
+
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
         icon: "icons/RoleAction/CASTER/Addle.png"
@@ -958,7 +1209,7 @@ const JOB_SKILLS = {
 
     const selectedByGroup = {};
 
-console.log("jobKey=", jobKey, "skills=", skills);
+//console.log("jobKey=", jobKey, "skills=", skills);
 
     if (!skills) {
         console.error("NO SKILLS for:", jobKey);
@@ -966,10 +1217,10 @@ console.log("jobKey=", jobKey, "skills=", skills);
     }
 
     skills.forEach(skill => {
-        console.log("sample", skills[0]);
+        //console.log("sample", skills[0]);
         const currentLv = Number(lv.value);
 
-        const needLv = Number(skill.minLv ?? skill.MinLevel ?? 0);
+        const needLv = Number(skill.minLv ?? skill.minLevel ?? 0);
         if (currentLv >= needLv) {
         
         //if (currentLv >= skill.minLv) {
@@ -986,8 +1237,50 @@ console.log("jobKey=", jobKey, "skills=", skills);
             }
         }
         });
+        
+        //並び替え
+        const displaySkills = Object.values(selectedByGroup);
 
-        Object.values(selectedByGroup).forEach((skill) => {
+        if (sortMode === "level") {
+            displaySkills.sort((a,b) => {
+           return Number(a.minLv ?? a.minLevel ?? 0) - Number(b.minLv ?? b.minLevel ?? 0);
+        });
+        }
+
+        if (sortMode === "category") {
+            displaySkills.sort((a,b) =>{
+                const ca = a.category ?? "";
+                const cb = b.category ?? "";
+
+                const ia = CATEGORY_ORDER.indexOf(ca);
+                const ib = CATEGORY_ORDER.indexOf(cb);
+                if (ia !== ib) return ia -ib;
+                
+                //同カテゴリ内は習得レベル順
+               return Number(a.minLv ?? a.minLevel ?? 0) - Number(b.minLv ?? b.minLevel ?? 0);
+            });
+        }
+
+        if (sortMode === "recast") {
+            displaySkills.sort((a,b) => {
+            const ra = a.recast ?? null;
+            const rb = b.recast ?? null;
+
+            if (ra == null && rb == null) {
+                return Number(a.minLv ?? a.minLevel ?? 0) -Number(b.minLv ?? b.minLevel ?? 0);
+            }
+            if (ra == null) return 1;
+            if (rb == null) return -1;
+
+            if (ra !== rb) return ra - rb;
+
+            return (Number(a.minLv ?? a.minLevel ?? 0)) - (Number(b.minLv ?? b.minLevel ?? 0))
+        });
+        }
+
+        
+
+        displaySkills.forEach((skill) => {
 
             const currentLv = Number(lv.value);
 
@@ -1034,7 +1327,7 @@ console.log("jobKey=", jobKey, "skills=", skills);
 
             if (recastEl.textContent) {
                 timeWrap.appendChild(recastEl);
-            }
+            };
 
             //効果時間
             if (Array.isArray(skill.duration)) {
@@ -1054,6 +1347,21 @@ console.log("jobKey=", jobKey, "skills=", skills);
             } else if (durationSec != null) {
                 durationEl.textContent = `効果時間 ${durationSec}s`;
                 timeWrap.appendChild(durationEl);
+            };
+
+            //範囲
+            let rangeText = "";
+            if (skill.origin && skill.shape) {
+            const o = ORIGIN_LABEL[skill.origin] ?? skill.origin;
+            const s = SHAPE_LABEL[skill.shape] ?? skill.shape;
+            rangeText = `${o} / ${s}`;
+            };
+
+            if (rangeText) {
+                const rangeEl = document.createElement("span");
+                rangeEl.className = "time-item";
+                rangeEl.textContent = rangeText;
+                timeWrap.appendChild(rangeEl);
             }
 
             const icon = document.createElement("img");
@@ -1114,14 +1422,13 @@ console.log("jobKey=", jobKey, "skills=", skills);
 // ============================
 // レベルスライダー関連
 // ============================
-lv.addEventListener("input", function() {
-lvValue.textContent = lv.value;
+lv.addEventListener("input", () => {
+    if (currentJobKey) renderSchSkills(currentJobKey);
+});
 
 if (statusBar.hidden) {
     document.title = "JQG-ジョブクイックガイド";
-    return;
-}
-
+} else {
     //タイトル変更処理
     const shortName = currentJobEl.textContent.split(" / ")[1] || "";
     if (shortName){
@@ -1129,7 +1436,7 @@ if (statusBar.hidden) {
     }
 
     document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
-});
+}
 
 // ============================
 // ジョブボタン関連
@@ -1170,6 +1477,7 @@ jobButtons.forEach(button => {
         skillArea.hidden = !hasSkills;
 
         if(hasSkills) {
+            currentJobKey = shortName;
             renderSchSkills(shortName);
         }
 
