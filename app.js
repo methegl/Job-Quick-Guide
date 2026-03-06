@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.0.2");
+console.log("app.js loaded v0.0.3");
 
 // ============================
 // DOM取得
@@ -12,10 +12,21 @@ const skillList = document.getElementById("skillList");
 let sortMode = "level";
 const sortSelect = document.getElementById("sortSelect");
 
+let categoryFilter = "all";
+const categorySelect = document.getElementById("categorySelect");
+
 sortSelect.addEventListener("change", () => {
     sortMode = sortSelect.value;
 
     //今選ばれてるジョブで描画しなおす
+    if (currentJobKey) {
+        renderSchSkills(currentJobKey);
+    }
+});
+
+categorySelect.addEventListener("change", () => {
+    categoryFilter = categorySelect.value;
+
     if (currentJobKey) {
         renderSchSkills(currentJobKey);
     }
@@ -69,7 +80,8 @@ function pickByLevel(valueOrList, currentLv) {
 const ORIGIN_LABEL = {
   self: "自分中心",
   target: "対象中心",
-  pet: "妖精中心",
+  fairy: "妖精中心",
+  pet: "召喚獣から",
   ground: "設置"
 };
 
@@ -77,7 +89,8 @@ const SHAPE_LABEL = {
   circle: "円",
   cone: "扇",
   line: "直線",
-  single: "単体"
+  single: "単体",
+  self: "自分自身"
 };
 
 // ============================
@@ -102,6 +115,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 22,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -119,6 +133,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 98,
         group: "reprisal",
+        category: "mitigation",
         type: "pleyre",
         mpCost: null,
         recast: 60,
@@ -142,6 +157,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 22,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -159,6 +175,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 98,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -182,6 +199,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 22,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -199,6 +217,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 98,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -222,6 +241,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 22,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -239,6 +259,7 @@ function getCategory(skill) {
         name: "リプライザル",
         minLv: 98,
         group: "reprisal",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -262,6 +283,7 @@ function getCategory(skill) {
         name: "レイズ",
         minLv: 12,
         group: "raise",
+        category: "heal",
         type: "player",
         mpCost: 2400,
         recast: null,
@@ -285,6 +307,7 @@ function getCategory(skill) {
         name: "フィジク",
         minLv: 4,
         group: "physick",
+        category: "heal",
         type: "player",
         mpCost: 400,
         recast: null,
@@ -305,6 +328,7 @@ function getCategory(skill) {
         name: "リザレク",
         minLv: 12,
         group: "resurrection",
+        category: "heal",
         type: "player",
         mpCost: 2400,
         recast: null,
@@ -322,13 +346,14 @@ function getCategory(skill) {
         name: "光の囁き",
         minLv: 20,
         group: "whispering",
+        category: "heal",
         type: "pet",
         mpCost: null,
         recast: 60,
         recastType: "ogcd",
         duration: 21,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "circle",
 
         tags: ["回復","ペット","アビリティ"],
@@ -339,6 +364,7 @@ function getCategory(skill) {
         name: "鼓舞激励の策",
         minLv: 30,
         group: "adloquium",
+        category: ["heal","mitigation"],
         type: "player",
         mpCost: 900,
         recastType: "gcd",
@@ -358,6 +384,7 @@ function getCategory(skill) {
         name: "士気高揚の策",
         minLv: 35,
         group: "succor",
+        category: ["heal","mitigation"],
         type: "player",
         mpCost: 900,
         recastType: "gcd",
@@ -377,13 +404,14 @@ function getCategory(skill) {
         name: "フェイイルミネーション",
         minLv: 40,
         group: "illumination",
+        category: "mitigation",
         type: "pet",
         mpCost: null,
         recast: 120,
         recastType: "ogcd",
         duration: 20,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "circle",
 
         tags: ["軽減","ペット","アビリティ"],
@@ -394,6 +422,7 @@ function getCategory(skill) {
         name: "エーテルフロー",
         minLv: 45,
         group: "aetherflow",
+        category: "other",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -403,6 +432,11 @@ function getCategory(skill) {
         origin: "self",
         shape: "single",
 
+        resourceChange: {
+            name: "エーテルフロー",
+            amount: 3
+        },
+
         tags: ["MP回復","アビリティ","フロー"],
         effect: "最大MPの20%回復\nエーテルフロー:3つ獲得",
         icon: "icons/SCH/Aetherflow.png"
@@ -411,14 +445,20 @@ function getCategory(skill) {
         name: "生命活性法",
         minLv: 45,
         group: "lustrate",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 1,
         recastType: "ogcd",
         duration: null,
 
-        origin: "self",
-        shape: "target",
+        origin: "target",
+        shape: "single",
+
+        resourceChange: {
+            name: "エーテルフロー",
+            amount: -1
+        },
 
         tags: ["回復","アビリティ","フロー"],
         effect: "対象のHP回復 回復力:600\nエーテルフロー:1つ消費",
@@ -428,6 +468,7 @@ function getCategory(skill) {
         name: "野戦治療の陣",
         minLv: 50,
         group: "soil",
+        category: ["mitigation","heal"],
         type: "player",
         mpCost: null,
         recast: 30,
@@ -436,6 +477,11 @@ function getCategory(skill) {
 
         origin: "ground",
         shape: "circle",
+
+        resourceChange: {
+            name: "エーテルフロー",
+            amount: -1
+        },
 
         tags:["軽減","設置型","アビリティ","フロー"],
         effect: [
@@ -448,6 +494,7 @@ function getCategory(skill) {
         name: "不撓不屈の策",
         minLv: 52,
         group: "indomitability",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 30,
@@ -457,6 +504,11 @@ function getCategory(skill) {
         origin: "self",
         shape: "circle",
 
+        resourceChange: {
+            name: "エーテルフロー",
+            amount: -1
+        },
+
         tags: ["回復","アビリティ","フロー"],
         effect: "範囲内のPTMのHP回復 回復力:400\nエーテルフロー:1つ消費",
         icon: "icons/SCH/Indomitability.png"
@@ -465,6 +517,7 @@ function getCategory(skill) {
         name: "展開戦術",
         minLv: 56,
         group: "deployment",
+        category: "other",
         type: "player",
         mpCost: null,
         recast: [
@@ -485,6 +538,7 @@ function getCategory(skill) {
         name: "応急戦術",
         minLv: 58,
         group: "emergency",
+        category: "other",
         type: "player",
         mpCost: null,
         recast: 15,
@@ -502,6 +556,7 @@ function getCategory(skill) {
         name: "転化",
         minLv: 60,
         group: "dissipation",
+        category: "other",
         type: "player",
         mpCost: null,
         recast: 180,
@@ -511,6 +566,11 @@ function getCategory(skill) {
         origin: "self",
         shape: "single",
 
+        resourceChange: {
+            name: "エーテルフロー",
+            amount: 3
+        },
+
         tags:["バフ","フロー","ペット","アビリティ","ヒール補助"],
         effect: "召喚中の[フェアリー]を一時帰還//自身の[回復魔法効果]20%UP\n エーテルフロー:3つ獲得/[サモン・セラフィム中使用不可]/[効果終了時フェアリーの位置固定解除]",
         icon: "icons/SCH/Dissipation.png"
@@ -519,6 +579,7 @@ function getCategory(skill) {
         name: "深謀遠慮の策",
         minLv: 62,
         group: "excogitation",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 45,
@@ -528,6 +589,11 @@ function getCategory(skill) {
         origin: "target",
         shape: "single",
 
+        resourceChange: {
+            name: "エーテルフロー",
+            amount: -1
+        },
+
         tags: ["回復","アビリティ","フロー"],
         effect: "対象のHPが50%以下or効果時間終了で回復発動 回復力:800",
         icon: "icons/SCH/Excogitation.png"
@@ -536,6 +602,7 @@ function getCategory(skill) {
         name: "連環計",
         minLv: 66,
         group: "chain",
+        category: "synergy",
         type: "player",
         mpCost: null,
         recast: 120,
@@ -553,13 +620,14 @@ function getCategory(skill) {
         name: "エーテルパクト",
         minLv: 70,
         group: "aetherpact",
+        category: "heal",
         type: "pet",
         mpCost: null,
         recast: 3,
         recastType: "ogcd",
         duration: null,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "single",
 
         tags: ["回復","ペット","アビリティ"],
@@ -570,6 +638,7 @@ function getCategory(skill) {
         name: "秘策",
         minLv: 74,
         group: "recitation",
+        category: "other",
         type: "player",
         mpCost: null,
         recast: [
@@ -590,13 +659,14 @@ function getCategory(skill) {
         name: "フェイブレッシング",
         minLv: 76,
         group: "blessing",
+        category: "heal",
         type: "pet",
         mpCost: null,
         recast: 60,
         recastType: "ogcd",
         duration: null,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "circle",
 
         tags: ["回復","ペット","アビリティ"],
@@ -607,13 +677,14 @@ function getCategory(skill) {
         name: "サモン・セラフィム",
         minLv: 80,
         group: "seraph",
+        category: "other",
         type: "pet",
         mpCost: null,
         recast: 120,
         recastType: "ogcd",
         duration: 22,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "single",
 
         tags: ["ペット強化","ペット","アビリティ"],
@@ -624,13 +695,14 @@ function getCategory(skill) {
         name: "コンソレイション",
         minLv: 80,
         group: "consolation",
+        category: ["heal","mitigation"],
         type: "pet",
         mpCost: null,
         recast: 120,
         recastType: "ogcd",
         duration: 22,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "circle",
 
         tags: ["回復","バリア","ペット","アビリティ"],
@@ -641,6 +713,7 @@ function getCategory(skill) {
         name: "生命回生法",
         minLv: 86,
         group: "protraction",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -658,6 +731,7 @@ function getCategory(skill) {
         name: "疾風怒濤の計",
         minLv: 90,
         group: "expedient",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 120,
@@ -678,6 +752,7 @@ function getCategory(skill) {
         name: "意気軒高の策",
         minLv: 96,
         group: "succor",
+        category: ["heal","mitigation"],
         type: "player",
         mpCost: 900,
         recast: null,
@@ -695,6 +770,7 @@ function getCategory(skill) {
         name: "セラフィズム",
         minLv: 100,
         group: "seraphism",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 180,
@@ -712,6 +788,7 @@ function getCategory(skill) {
         name: "マニフェステーション",
         minLv: 100,
         group: "manifestation",
+        category: ["heal","mitigation"],
         type: "player",
         mpCost: 900,
         recast: null,
@@ -729,6 +806,7 @@ function getCategory(skill) {
         name: "アクセッション",
         minLv: 100,
         group: "accession",
+        category: ["heal","mitigation"],
         type: "player",
         mpCost: 900,
         recast: null,
@@ -746,13 +824,14 @@ function getCategory(skill) {
         name: "光の癒し",
         minLv: 1,
         group: "enbrace",
+        category: "heal",
         type: "pet",
         mpCost: null,
         recast: 3,
         recastType: "ogcd",
         duration: null,
 
-        origin: "pet",
+        origin: "fairy",
         shape: "single",
 
         tags:["回復","魔法","ペット","オートヒール"],
@@ -772,6 +851,7 @@ function getCategory(skill) {
         name: "アセンド",
         minLv: 12,
         group: "ascend",
+        category: "heal",
         type: "player",
         mpCost: 2400,
         recast: null,
@@ -795,6 +875,7 @@ function getCategory(skill) {
         name: "エゲイロー",
         minLv: 12,
         group: "egeiro",
+        category: "heal",
         type: "player",
         mpCost: 2400,
         recast: null,
@@ -818,6 +899,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -829,8 +911,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
     }, 
@@ -844,6 +926,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -855,8 +938,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
     }, 
@@ -870,6 +953,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -881,8 +965,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
     }, 
@@ -896,6 +980,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -907,8 +992,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
     },  
@@ -922,6 +1007,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -933,8 +1019,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
     },    
@@ -948,6 +1034,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -959,8 +1046,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
     },      
@@ -974,6 +1061,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -985,8 +1073,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/RANGED/Second_Wind.png"
     },     
@@ -1000,6 +1088,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -1011,8 +1100,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/RANGED/Second_Wind.png"
     },            
@@ -1026,6 +1115,7 @@ function getCategory(skill) {
         name: "内丹",
         minLv: 22,
         group: "second_wind",
+        category: "heal",
         type: "player",
         mpCost: null,
         recast: 60,
@@ -1037,8 +1127,8 @@ function getCategory(skill) {
 
         tags:["回復","アビリティ","ロールアクション"],
         effect: [
-            {minLevel: 22, value:"自分のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自分のHPを回復する 回復力:800"}
+            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
         icon: "icons/RoleAction/RANGED/Second_Wind.png"
     },            
@@ -1052,6 +1142,7 @@ function getCategory(skill) {
         name: "アドル",
         minLv: 8,
         group: "addole",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 90,
@@ -1064,11 +1155,30 @@ function getCategory(skill) {
         tags:["軽減","アビリティ","ロールアクション"],
         effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
         icon: "icons/RoleAction/CASTER/Addle.png"
+    },
+    {
+        name: "マバリア",
+        minLv: 30,
+        group: "manaward",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 120,
+        recastType: "ogcd",
+        duration: 20,
+
+        origin: "self",
+        shape: "single",
+        
+        tags:["軽減","アビリティ","バリア"],
+        effect: "自身に[最大HPの30%分]を無効化するバリアを張る",
+        icon: "icons/BLM/Manaward.png"
     },            
         {
         name: "アドル",
         minLv: 98,
         group: "addole",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 90,
@@ -1090,56 +1200,31 @@ function getCategory(skill) {
 // ============================
     const SMN_SKILLS = [
     {
-        name: "リザレク",
-        minLv: 12,
-        group: "resurrection",
-        type: "player",
-        mpCost: 2400,
-        recast: null,
-        recastType: "gcd",
-        duration: null,
+        name: "守りの光",
+        minLv: 2,
+        group: "radiant_aegis",
+        category: "mitigation",
+        type: "pet",
+        mpCost: null,
+        recast: 90,
+        recastType: "ogcd",
+        duration: 15,
 
-        origin: "target",
-        shape: "single",
+        origin: "pet",
+        shape: "self",
 
-        tags: ["蘇生","魔法"],
-        effect: "対象を衰弱状態で蘇生",
-        icon: "icons/SMN/Resurrection.png"
+        tags:["軽減","ペット","アビリティ","バリア"],
+        effect: [
+            {minLevel: 2, value:"召喚者に[最大HP20%分]のバリアを張る\n[カーバンクル召喚中のみ]"},
+            {minLevel: 88, value:"召喚者に[最大HP20%分]のバリアを張る\n[カーバンクル召喚中のみ][最大チャージ]2"}
+        ],
+        icon: "icons/SMN/Radiant_Aegis.png"
     },
-    ]; 
-
-// ============================
-// 赤魔道士スキルデータ
-// ============================
-    const RDM_SKILLS = [
-    {
-        name: "ヴァルレイズ",
-        minLv: 64,
-        group: "verraise",
-        type: "player",
-        mpCost: 2400,
-        recast: null,
-        recastType: "gcd",
-        duration: null,
-
-        origin: "target",
-        shape: "single",
-
-        tags: ["蘇生","魔法"],
-        effect: "対象を衰弱状態で蘇生",
-        icon: "icons/RDM/Verraise.png"
-    },    
-    ]; 
-
-
-// ============================
-// ピクトマンサースキルデータ
-// ============================
-    const PCT_SKILLS = [
     {
         name: "アドル",
         minLv: 8,
         group: "addole",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 90,
@@ -1154,9 +1239,325 @@ function getCategory(skill) {
         icon: "icons/RoleAction/CASTER/Addle.png"
     },  
     {
+        name: "リザレク",
+        minLv: 12,
+        group: "resurrection",
+        category: "heal",
+        type: "player",
+        mpCost: 2400,
+        recast: null,
+        recastType: "gcd",
+        duration: null,
+
+        origin: "target",
+        shape: "single",
+
+        tags: ["蘇生","魔法"],
+        effect: "対象を衰弱状態で蘇生",
+        icon: "icons/SMN/Resurrection.png"
+    },
+    {
+        name: "シアリングライト",
+        minLv: 66,
+        group: "searing_light",
+        category: "synergy",
+        type: "player",
+        mpCost: null,
+        recast: 120,
+        recastType: "ogcd",
+        duration: 20,
+
+        origin: "self",
+        shape: "circle",
+
+        tags: ["シナジー","アビリティ"],
+        effect: "自身と範囲内のPTMの与ダメージ5%上昇",
+        icon: "icons/SMN/Searing_Light.png"
+    },
+    {
+        name: "不死鳥の翼",
+        minLv: 80,
+        group: "everlasting_flight",
+        category: "heal",
+        type: "pet",
+        mpCost: null,
+        recast: null,
+        recastType: "ogcd",
+        duration: 21,
+
+        origin: "pet",
+        shape: "circle",
+
+        tags:["回復","ペット"],
+        effect: "周囲のPTMにHoT付与 回復力:100\n[デミ・フェニックス顕現時自動付与][ホットバー登録不可]",
+        icon: "icons/SMN/Everlasting_Flight.png"
+    },
+    {
+        name: "再生の炎",
+        minLv: 80,
+        group: "rekindle",
+        category: "heal",
+        type: "pet",
+        mpCost: null,
+        recast: 20,
+        recastType: "ogcd",
+        duration: [
+            {label: "再生の炎", value: 30 },
+            {label: "継続回復効果", value: 15 }
+        ],
+
+        origin: ["pet","target"],
+        shape: "single",
+
+        tags:["回復","ペット","アビリティ"],
+        effect: "対象のHPを回復する 回復力:400\n対象に[再生の炎]を付与 対象のHP75%以下or効果時間終了でHoT付与 回復力:200",
+        icon: "icons/SMN/Rekindle.png"
+    },
+    {
         name: "アドル",
         minLv: 98,
         group: "addole",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 90,
+        recastType: "ogcd",
+        duration: 15,
+
+        origin: "target",
+        shape: "single",
+
+        tags:["軽減","アビリティ","ロールアクション"],
+        effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
+        icon: "icons/RoleAction/CASTER/Addle.png"
+    },
+    {
+        name: "ルクス・ソラリス",
+        minLv: 100,
+        group: "lux_Solaris",
+        category: "heal",
+        type: "player",
+        mpCost: null,
+        recast: 60,
+        recastType: "ogcd",
+        duration: null,
+
+        origin: "self",
+        shape: "circle",
+
+        tags:["回復","ペット","アビリティ"],
+        effect: "自身と周囲のPTMのHP回復 回復力:500\n[ルクス・ソラリス実行可]効果中のみ使用可",
+        icon: "icons/SMN/Lux_Solaris.png"
+    },
+    ]; 
+
+// ============================
+// 赤魔道士スキルデータ
+// ============================
+    const RDM_SKILLS = [
+    {
+        name: "アドル",
+        minLv: 8,
+        group: "addole",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 90,
+        recastType: "ogcd",
+        duration: 10,
+
+        origin: "target",
+        shape: "single",
+
+        tags:["軽減","アビリティ","ロールアクション"],
+        effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
+        icon: "icons/RoleAction/CASTER/Addle.png"
+    },
+    {
+        name: "ヴァルケアル",
+        minLv: 54,
+        group: "vercure",
+        category: "heal",
+        type: "player",
+        mpCost: 500,
+        recast: null,
+        recastType: "gcd",
+        duration: null,
+
+        origin: "target",
+        shape: "single",
+
+        tags: ["回復","魔法"],
+        effect: "対象のHP回復 回復力:350",
+        icon: "icons/RDM/Vercure.png"
+    },
+    {
+        name: "エンボルデン",
+        minLv: 58,
+        group: "embolden",
+        category: "synergy",
+        type: "player",
+        mpCost: 2400,
+        recast: 120,
+        recastType: "ogcd",
+        duration: 20,
+
+        origin: "self",
+        shape: "circle",
+
+        tags: ["シナジー","アビリティ"],
+        effect: "自身の[与魔法ダメージ]10%上昇\n周囲のPTMの与ダメージ5%上昇",
+        icon: "icons/RDM/Embolden.png"
+    },  
+    {
+        name: "ヴァルレイズ",
+        minLv: 64,
+        group: "verraise",
+        category: "heal",
+        type: "player",
+        mpCost: 2400,
+        recast: null,
+        recastType: "gcd",
+        duration: null,
+
+        origin: "target",
+        shape: "single",
+
+        tags: ["蘇生","魔法"],
+        effect: "対象を衰弱状態で蘇生",
+        icon: "icons/RDM/Verraise.png"
+    },
+    {
+        name: "バマジク",
+        minLv: 86,
+        group: "magick_barrier",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 120,
+        recastType: "ogcd",
+        duration: 10,
+
+        origin: "self",
+        shape: "circle",
+
+        tags: ["軽減","アビリティ","回復効果UP"],
+        effect: "自身と周囲のPTMの[被魔法ダメージ]10%軽減 [受ける回復効果]5%上昇",
+        icon: "icons/RDM/Magick_Barrier.png"
+    },  
+    {
+        name: "アドル",
+        minLv: 98,
+        group: "addole",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 90,
+        recastType: "ogcd",
+        duration: 15,
+
+        origin: "target",
+        shape: "single",
+
+        tags:["軽減","アビリティ","ロールアクション"],
+        effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
+        icon: "icons/RoleAction/CASTER/Addle.png"
+    },    
+    ]; 
+
+
+// ============================
+// ピクトマンサースキルデータ
+// ============================
+    const PCT_SKILLS = [
+    {
+        name: "アドル",
+        minLv: 8,
+        group: "addole",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 90,
+        recastType: "ogcd",
+        duration: 10,
+
+        origin: "target",
+        shape: "single",
+
+        tags:["軽減","アビリティ","ロールアクション"],
+        effect: "対象の与ダメージ減少\n[物理]5% [魔法]10%",
+        icon: "icons/RoleAction/CASTER/Addle.png"
+    }, 
+    {
+        name: "テンペラコート",
+        minLv: 10,
+        group: "tempera_coat",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 120,
+        recastType: "ogcd",
+        duration: 10,
+
+        origin: "self",
+        shape: "single",
+        
+        tags:["軽減","アビリティ","バリア"],
+        effect: [
+            {minLevel: 10, value:"自身に[最大HPの20%分]のバリアを張る\nバリアが割れると[テンペラコート]リキャスト60秒短縮"},
+            {minLevel: 88, value:"自身に[最大HPの20%分]のバリアを張る\nバリアが割れると[テンペラコート]リキャスト60秒短縮\n[テンペラグラッサ]実行可能"}
+        ],
+        icon: "icons/PCT/Tempera_Coat.png"
+    },
+    {
+        name: "テンペラグラッサ",
+        minLv: 88,
+        group: "tempera_grassa",
+        category: "mitigation",
+        type: "player",
+        mpCost: null,
+        recast: 1,
+        recastType: "ogcd",
+        duration: 10,
+
+        origin: "self",
+        shape: "single",
+        
+        tags:["軽減","アビリティ","バリア"],
+        effect: "[テンペラコート]を解除し、自身と周囲のPTMに[対象の最大HPの10%分]のバリアを張る\n自分に付与されたバリアが割れると[テンペラコート]リキャスト30秒短縮\n[テンペラコート]効果中のみ使用可",
+        icon: "icons/PCT/Tempera_Grassa.png"
+    },
+    {
+        name: "イマジンスカイ",
+        minLv: 70,
+        group: "starry_Muse",
+        category: "synergy",
+        type: "player",
+        mpCost: null,
+        recast: 120,
+        recastType: "ogcd",
+        duration: [
+            {label: "イマジンスカイ", value: 20 },
+            {label: "インスタレーション", value: 30 }
+        ],
+
+        origin: "self",
+        shape: "circle",
+
+        resourceChange: {
+            name: "「スカイ」の絵素",
+            amount: -1
+        },
+
+        tags: ["シナジー","アビリティ"],
+        effect: "自身と周囲のPTMの与ダメージ5%上昇\n[サブトラクティブパレット実行可]付与\n[インスタレーション]5スタック付与",
+        icon: "icons/PCT/Starry_Muse.png"
+    },    
+    {
+        name: "アドル",
+        minLv: 98,
+        group: "addole",
+        category: "mitigation",
         type: "player",
         mpCost: null,
         recast: 90,
@@ -1239,26 +1640,26 @@ const JOB_SKILLS = {
         });
         
         //並び替え
-        const displaySkills = Object.values(selectedByGroup);
+        let displaySkills = Object.values(selectedByGroup);
+
+        if(categoryFilter !== "all") {
+            displaySkills = displaySkills.filter(skill => {
+
+                const cat =skill.category;
+
+                if (!cat) return categoryFilter === "other";
+
+                if (Array.isArray(cat)) {
+                    return cat.includes(categoryFilter);
+                }
+                return cat === categoryFilter;
+            });
+        }
 
         if (sortMode === "level") {
             displaySkills.sort((a,b) => {
            return Number(a.minLv ?? a.minLevel ?? 0) - Number(b.minLv ?? b.minLevel ?? 0);
         });
-        }
-
-        if (sortMode === "category") {
-            displaySkills.sort((a,b) =>{
-                const ca = a.category ?? "";
-                const cb = b.category ?? "";
-
-                const ia = CATEGORY_ORDER.indexOf(ca);
-                const ib = CATEGORY_ORDER.indexOf(cb);
-                if (ia !== ib) return ia -ib;
-                
-                //同カテゴリ内は習得レベル順
-               return Number(a.minLv ?? a.minLevel ?? 0) - Number(b.minLv ?? b.minLevel ?? 0);
-            });
         }
 
         if (sortMode === "recast") {
@@ -1305,6 +1706,9 @@ const JOB_SKILLS = {
 
             const timeWrap = document.createElement("span");
             timeWrap.className = "time-wrap";
+
+            const resourceEl = document.createElement("span");
+            resourceEl.className = "skill-resource";
 
             const mpCost = pickByLevel(skill.mpCost, currentLv);
             const recastSec = pickByLevel(skill.recast, currentLv); 
@@ -1364,6 +1768,16 @@ const JOB_SKILLS = {
                 timeWrap.appendChild(rangeEl);
             }
 
+            //リソース系
+            if (skill.resourceChange) {
+                const name = skill.resourceChange.name;
+                const amount = skill.resourceChange.amount;
+
+                const signAmount = amount > 0 ? `+${amount}` : amount;
+
+                resourceEl.textContent = `${name}：${signAmount}`;
+            }
+
             const icon = document.createElement("img");
             icon.className = "skill-icon"; 
             icon.src = skill.icon;
@@ -1387,6 +1801,11 @@ const JOB_SKILLS = {
 
             titleWrap.appendChild(nameEl);
             titleWrap.appendChild(timeWrap);
+
+            if (resourceEl.textContent) {
+                titleWrap.appendChild(resourceEl);
+            }
+
             titleWrap.appendChild(tagsEl);
 
             top.appendChild(icon);
