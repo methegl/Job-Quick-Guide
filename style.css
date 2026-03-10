@@ -50,6 +50,45 @@ body.dark {
     --bodey-text: #d6d6d6; /* 本文用 */
 }
 
+/* テーマトグル */
+.theme-switch{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+#themeToggle{
+  position:relative;
+  width:48px;
+  height:24px;
+  border-radius:999px;
+  border:none;
+  background:#cfc3a6;
+  cursor:pointer;
+}
+
+#themeToggle::before{
+  content:"";
+  position:absolute;
+  top:2px;
+  left:2px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:white;
+  transition:transform .2s ease;
+}
+
+body.dark #themeToggle{
+  background:#4a5aa3;
+}
+
+body.dark #themeToggle::before{
+  transform:translateX(24px);
+}
+
+
+
 body{
     background: var(--bg-main);
     color: var(--text-main);
@@ -209,4 +248,24 @@ body{
     color: var(--body-text);
     font-size: 14px;
     line-height: 1.4;
+}
+
+.skill-req{
+    white-space: pre-line;
+    margin-top: 6px;
+    color: var(--body-text);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* スキル注意点 */
+.skill-notes {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #9a4d00;
+}
+
+body.dark .skill-notes {
+  color: #ffb347;
 }
