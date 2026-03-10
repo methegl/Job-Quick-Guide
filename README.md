@@ -1,4 +1,10 @@
 # Job Quick Guide (JQG)
+![version](https://img.shields.io/badge/version-v0.4-blue)
+![status](https://img.shields.io/badge/status-development-orange)
+![game](https://img.shields.io/badge/game-FFXIV-purple)
+![license](https://img.shields.io/badge/license-MIT-green)
+![javascript](https://img.shields.io/badge/code-JavaScript-yellow)
+
 
 FF14のスキルを素早く確認するためのWebツールです。
 
