@@ -95,17 +95,24 @@ body{
 }
 
 /* ジョブボタン */
-.job {
-    padding: 6px 12px;
-    margin: 4px;
-    border: 1px solid var(--btn-border);
-    background: var(--btn-bg);
-    cursor: pointer;
+.job-icon{
+  width:40px;
+  height:40px;
+  display:block;
 }
 
-.role-row {
-    display: flex;
-    gap: 3px;
+.job{
+  border:none;
+  padding: 2px;
+  background:none;
+  transition:transform 0.15s;
+}
+
+.job:hover{
+  transform:scale(1.1);
+}
+.job:focus{
+  outline:none;
 }
 
 /* 押すと光る */
@@ -268,4 +275,62 @@ body{
 
 body.dark .skill-notes {
   color: #ffb347;
+}
+
+/* フッター */
+.alchemy-footer{
+    text-align: center;
+    font-size: 12px;
+    color:#c9a24a;
+    margin-top: 40px;
+    padding: 20px 0;
+    opacity:0.8;
+
+    text-shadow:
+        0 0 5px rgba(201,162,74,0.5),
+        0 0 10px rgba(201,162,74,0.3);
+}
+.alchemy-footer span{
+    display:inline-block;
+    transition: transform 0.2s;
+}
+
+.alchemy-footer:hover{
+    text-shadow:
+        0 0 10px rgba(201,162,74,0.9),
+        0 0 20px rgba(201,162,74,0.6);
+}
+
+.alchemy-footer span:hover{
+    transform: scale(1.2);
+}
+
+.alchemy-icon{
+    display:inline-block;
+    animation: alchemyBubble 3s ease-in-out infinite;
+}
+
+@keyframes alchemyBubble{
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
+    100% { transform: translateY(0px); }
+}
+
+.kofi-icon{
+    display:inline-block;
+    transition: transform 0.3s ease;
+}
+
+.kofi-icon:hover{
+    transform: rotate(-35deg) translateY(-3px) scale(1.1);
+}
+
+.alchemy-footer a{
+  color: #c9a24a;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.alchemy-footer a:hover{
+  text-shadow: 0 0 8px rgba(255,215,120,0.8);
 }

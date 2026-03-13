@@ -1740,7 +1740,7 @@ const SHAPE_LABEL = {
     {
         id: "mnk_second_wind",
         name: "内丹",
-        minLv: 22,
+        minLv: 8,
         group: "second_wind",
 
         category: "heal",
@@ -1764,7 +1764,7 @@ const SHAPE_LABEL = {
         duration: [],
 
         effect: [
-            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
             {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
 
@@ -1773,6 +1773,81 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "mnk_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    },
+    {
+        id: "mnk_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
     }, 
     ]; 
 
@@ -1783,7 +1858,7 @@ const SHAPE_LABEL = {
     {
         id: "sum_second_wind",
         name: "内丹",
-        minLv: 22,
+        minLv: 8,
         group: "second_wind",
 
         category: "heal",
@@ -1807,7 +1882,7 @@ const SHAPE_LABEL = {
         duration: [],
 
         effect: [
-            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
             {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
 
@@ -1816,7 +1891,82 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "sum_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
     }, 
+    {
+        id: "sum_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
+    },
     ]; 
 
 // ============================
@@ -1826,7 +1976,7 @@ const SHAPE_LABEL = {
     {
         id: "drg_second_wind",
        name: "内丹",
-        minLv: 22,
+        minLv: 8,
         group: "second_wind",
 
         category: "heal",
@@ -1850,7 +2000,7 @@ const SHAPE_LABEL = {
         duration: [],
 
         effect: [
-            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
             {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
 
@@ -1859,6 +2009,81 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "drg_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    },
+    {
+        id: "drg_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
     }, 
     ]; 
 
@@ -1869,7 +2094,7 @@ const SHAPE_LABEL = {
     {
         id: "rpr_second_wind",
         name: "内丹",
-        minLv: 22,
+        minLv: 8,
         group: "second_wind",
 
         category: "heal",
@@ -1893,7 +2118,7 @@ const SHAPE_LABEL = {
         duration: [],
 
         effect: [
-            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
             {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
 
@@ -1902,7 +2127,82 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
-    },  
+    }, 
+    {
+        id: "rpr_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    }, 
+    {
+        id: "rpr_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
+    },
     ]; 
 
 // ============================
@@ -1912,7 +2212,7 @@ const SHAPE_LABEL = {
     {
         id: "nin_second_wind",
         name: "内丹",
-        minLv: 22,
+        minLv: 8,
         group: "second_wind",
 
         category: "heal",
@@ -1936,7 +2236,7 @@ const SHAPE_LABEL = {
         duration: [],
 
         effect: [
-            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
             {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
 
@@ -1945,6 +2245,81 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "nin_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    },
+    {
+        id: "nin_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
     },    
     ];
 
@@ -1955,7 +2330,7 @@ const SHAPE_LABEL = {
     {
         id: "vpr_second_wind",
         name: "内丹",
-        minLv: 22,
+        minLv: 8,
         group: "second_wind",
 
         category: "heal",
@@ -1979,7 +2354,7 @@ const SHAPE_LABEL = {
         duration: [],
 
         effect: [
-            {minLevel: 22, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
             {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
         ],
 
@@ -1988,6 +2363,81 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "vpr_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    },
+    {
+        id: "vpr_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
     },      
     ]; 
 
