@@ -4260,12 +4260,37 @@ jobButtons.forEach(button => {
 //renderSchSkills();
 
 // ============================
-// モード切替
+// モード切替（保存有）
+// ============================
+// ============================
+// モード切替（保存あり）
 // ============================
 document.addEventListener("DOMContentLoaded", () => {
+
     const toggle = document.getElementById("themeToggle");
 
+    // 保存されたテーマを読み込む
+    const savedTheme = localStorage.getItem("theme");
+
+    if(savedTheme === "light"){
+        document.body.classList.remove("dark");
+        toggle.checked = false;
+    }else{
+        document.body.classList.add("dark");
+        toggle.checked = true;
+    }
+
+    // トグルクリック
     toggle.addEventListener("click", () => {
+
         document.body.classList.toggle("dark");
+
+        if(document.body.classList.contains("dark")){
+            localStorage.setItem("theme","dark");
+        }else{
+            localStorage.setItem("theme","light");
+        }
+
     });
+
 });
