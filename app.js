@@ -18,9 +18,11 @@ const categorySelect = document.getElementById("categorySelect");
 sortSelect.addEventListener("change", () => {
     sortMode = sortSelect.value;
 
+    console.log("currentJobKey", currentJobKey);
+
     //今選ばれてるジョブで描画しなおす
     if (currentJobKey) {
-        renderSchSkills(currentJobKey);
+        renderSkills(currentJobKey);
     }
 });
 
@@ -28,7 +30,7 @@ categorySelect.addEventListener("change", () => {
     categoryFilter = categorySelect.value;
 
     if (currentJobKey) {
-        renderSchSkills(currentJobKey);
+        renderSkills(currentJobKey);
     }
 });
 
@@ -1053,8 +1055,8 @@ const SHAPE_LABEL = {
         minLv: 66,
         group: "chain_stratagem",
 
-        category: "buff",
-        tags: ["buff", "debuff"],
+        category: "burst_120",
+        tags: ["debuff", "burst"],
         timelineTags: ["buff"],
 
         type: "player",
@@ -2203,6 +2205,7 @@ const SHAPE_LABEL = {
 
         icon: "icons/RoleAction/MELEE/Feint.png"
     },
+
     ]; 
 
 // ============================
@@ -2283,6 +2286,45 @@ const SHAPE_LABEL = {
         icon: "icons/RoleAction/MELEE/Bloodbath.png"
     },
     {
+        id: "nin_mug",
+        name: "ぶんどる",
+        minLv: 15,
+        group: "mug",
+
+        category: "burst_120",
+        tags: ["debuff","burst"],
+        timelineTags: ["buff"],
+
+        type: "player",
+        target: "enemys",
+        origin: "self",
+        shape: "cone",
+        range: 3,
+        radius: 0,
+
+        resourceChange: [
+        ],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 120,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 15, value: 20 }
+        ],
+
+        effect: [
+            {minLevel: 15 , value:"対象に物理攻撃 威力:150\n対象の被ダメージ5%UP"},
+        ],
+
+        requirements: [],
+
+        notes: ["敵撃破時、確率で追加ドロップ効果あり"],
+
+        icon: "icons/NIN/Dokumori.png"
+    }, 
+    {
         id: "nin_feint",
         name: "牽制",
         minLv: 22,
@@ -2320,7 +2362,48 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RoleAction/MELEE/Feint.png"
-    },    
+    },
+    {
+        id: "nin_Dokumori",
+        name: "毒盛の術",
+        minLv: 66,
+        group: "mug",
+
+        category: "burst_120",
+        tags: ["debuff","burst"],
+        timelineTags: ["buff"],
+
+        type: "player",
+        target: "enemys",
+        origin: "self",
+        shape: "cone",
+        range: 8,
+        radius: 8,
+
+        resourceChange: [
+            { resource: RESOURCE.NINKI, value: 40 }
+        ],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 120,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 66, value: 20 }
+        ],
+
+        effect: [
+            {minLevel: 66 , value:"前方扇範囲攻撃 威力:400\n対象の被ダメージ5%UP"},
+            {minLevel: 96 , value:"前方扇範囲攻撃 威力:400\n対象の与ダメージ減少\n自身に[秘技実行可]付与"}
+        ],
+
+        requirements: [],
+
+        notes: ["敵撃破時、確率で追加ドロップ効果あり"],
+
+        icon: "icons/NIN/Dokumori.png"
+    },        
     ];
 
 // ============================
@@ -2488,8 +2571,8 @@ const SHAPE_LABEL = {
         minLv: 50,
         group: "battle_voice",
 
-        category: "buff",
-        tags: ["buff"],
+        category: "burst_120",
+        tags: ["buff","burst"],
         timelineTags: ["buff"],
 
         type: "player",
@@ -2606,8 +2689,8 @@ const SHAPE_LABEL = {
         minLv: 90,
         group: "radiant_finale",
 
-        category: "buff",
-        tags: ["buff", "party"],
+        category: "burst_120",
+        tags: ["buff", "party","burst"],
         timelineTags: ["buff"],
 
         type: "player",
@@ -3319,8 +3402,8 @@ const SHAPE_LABEL = {
         minLv: 66,
         group: "searing_light",
 
-        category: "buff",
-        tags: ["buff", "party"],
+        category: "burst_120",
+        tags: ["buff", "party","burst"],
         timelineTags: ["buff"],
 
         type: "player",
@@ -3558,8 +3641,8 @@ const SHAPE_LABEL = {
         minLv: 58,
         group: "embolden",
 
-        category: "buff",
-        tags: ["buff", "party"],
+        category: "burst_120",
+        tags: ["buff", "party","burst"],
         timelineTags: ["buff"],
 
         type: "player",
@@ -3758,8 +3841,8 @@ const SHAPE_LABEL = {
         minLv: 70,
         group: "starry_muse",
         
-        category: "buff",
-        tags: ["buff","party"],
+        category: "burst_120",
+        tags: ["buff","party","burst"],
         timelineTags: ["buff"],
 
         type: "player",
@@ -3850,6 +3933,7 @@ const JOB_SKILLS = {
     SCH: SCH_SKILLS,
     AST: AST_SKILLS,
     SGE: SEG_SKILLS,
+    MNK: MNK_SKILLS,
     SAM: SAM_SKILLS,
     DRG: DRG_SKILLS,
     RPR: RPR_SKILLS,
@@ -3864,40 +3948,31 @@ const JOB_SKILLS = {
     PCT: PCT_SKILLS,
 };
 
- function renderSchSkills(jobKey) {
+ function renderSkills(jobKey) {
     skillList.innerHTML = "";
 
     const skills = JOB_SKILLS[jobKey];
-    if (!skills) return;
-
-    const selectedByGroup = {};
-
     if (!skills) {
         console.error("NO SKILLS for:", jobKey);
         return;
     }
 
+    const selectedByGroup = {};
+
     skills.forEach(skill => {
-        //console.log("sample", skills[0]);
         const currentLv = Number(lv.value);
-
         const needLv = Number(skill.minLv ?? skill.minLevel ?? 0);
+
         if (currentLv >= needLv) {
-        
-        //if (currentLv >= skill.minLv) {
-            const key =skill.group;
-            
-            if(key === "morale") {
-                // console.log("morale candidate:", skill.name, "minLv;", skill.minLv);
-            }
-
+            const key = skill.group;
             const existing = selectedByGroup[key];
+            const existingLv = Number(existing?.minLv ?? existing?.minLevel ?? 0);
 
-            if (!existing || skill.minLv > existing.minLv) {
+            if (!existing || needLv > existingLv) {
                 selectedByGroup[key] = skill;
             }
         }
-        });
+    });
         
         //並び替え
         let displaySkills = Object.values(selectedByGroup);
@@ -4189,19 +4264,29 @@ const JOB_SKILLS = {
 // レベルスライダー関連
 // ============================
 lv.addEventListener("input", () => {
-    if (currentJobKey) renderSchSkills(currentJobKey);
+    lvValue.textContent = lv.value;
+
+    if (currentJobKey) {
+        renderSkills(currentJobKey);
+    }
+
+    const shortName = currentJobEl.textContent.split(" / ")[1] || "";
+    if (shortName) {
+        document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
+    }
 });
+
+//初期表示
+lvValue.textContent = lv.value;
 
 if (statusBar.hidden) {
     document.title = "JQG-ジョブクイックガイド";
 } else {
     //タイトル変更処理
     const shortName = currentJobEl.textContent.split(" / ")[1] || "";
-    if (shortName){
-        renderSchSkills(shortName);
+    if (shortName) {
+        document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
     }
-
-    document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
 }
 
 // ============================
@@ -4244,7 +4329,7 @@ jobButtons.forEach(button => {
 
         if(hasSkills) {
             currentJobKey = shortName;
-            renderSchSkills(shortName);
+            renderSkills(shortName);
         }
 
 
@@ -4256,8 +4341,6 @@ jobButtons.forEach(button => {
     });
 });
 
-// 初回描画
-//renderSchSkills();
 
 // ============================
 // モード切替（保存有）
