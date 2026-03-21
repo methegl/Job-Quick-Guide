@@ -2322,7 +2322,7 @@ const SHAPE_LABEL = {
 
         notes: ["敵撃破時、確率で追加ドロップ効果あり"],
 
-        icon: "icons/NIN/Dokumori.png"
+        icon: "icons/NIN/Mug.png"
     }, 
     {
         id: "nin_feint",
