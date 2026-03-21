@@ -120,6 +120,8 @@ const RESOURCE = {
     SERAPH: "seraph",
     SERAPHISM: "seraphism",
 
+    NINKI: "ninki",
+
     CODA: "coda",
     IMPROVISATION: "improvisation",
 
@@ -144,6 +146,8 @@ const RESOURCE_LABEL = {
     fairy: "フェアリー",
     seraph: "セラフィム",
     seraphism: "セラフィズム",
+
+    ninki: "忍気",
 
     coda: "コーダシンボル",
     improvisation: "インプロビゼーション",
