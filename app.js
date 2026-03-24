@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.4");
+console.log("app.js loaded v0.57");
 
 // ============================
 // DOM取得
@@ -14,6 +14,8 @@ const sortSelect = document.getElementById("sortSelect");
 
 let categoryFilter = "all";
 const categorySelect = document.getElementById("categorySelect");
+let burstFilter = "all";
+const burstSelect = document.getElementById("burstFilter");
 
 sortSelect.addEventListener("change", () => {
     sortMode = sortSelect.value;
@@ -28,6 +30,14 @@ sortSelect.addEventListener("change", () => {
 
 categorySelect.addEventListener("change", () => {
     categoryFilter = categorySelect.value;
+
+    if (currentJobKey) {
+        renderSkills(currentJobKey);
+    }
+});
+
+burstSelect.addEventListener("change", () => {
+    burstFilter = burstSelect.value;
 
     if (currentJobKey) {
         renderSkills(currentJobKey);
@@ -95,7 +105,8 @@ const TAG_LABEL = {
     autoHeal: "オートヒール",
     HoT: "HoT",
     pet: "ペット",
-    movement: "移動補助"
+    movement: "移動補助",
+    burst: "バースト"
 };
 
 //条件データ
@@ -121,7 +132,6 @@ const RESOURCE = {
     SERAPHISM: "seraphism",
 
     NINKI: "ninki",
-
     CODA: "coda",
     IMPROVISATION: "improvisation",
 
@@ -148,7 +158,6 @@ const RESOURCE_LABEL = {
     seraphism: "セラフィズム",
 
     ninki: "忍気",
-
     coda: "コーダシンボル",
     improvisation: "インプロビゼーション",
 
@@ -183,11 +192,12 @@ const SHAPE_LABEL = {
 // ============================
 
 //catecory    
-//offense     = 攻撃
+//damage     = 攻撃
 //heal        = 回復
 //raise       = 蘇生
 //mitigation  = 軽減
 //buff        = 火力バフ
+//burst       = バースト
 //utility     = その他
 
 // timelineTags
@@ -1059,7 +1069,8 @@ const SHAPE_LABEL = {
         minLv: 66,
         group: "chain_stratagem",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["debuff", "burst"],
         timelineTags: ["buff"],
 
@@ -2091,6 +2102,45 @@ const SHAPE_LABEL = {
 
         icon: "icons/RoleAction/MELEE/Feint.png"
     }, 
+    {
+        id: "drg_battle_litany",
+        name: "バトルリタニー",
+        minLv: 52,
+        group: "battle_litany",
+
+        category: "burst",
+        burst: "120s",
+        tags: ["buff","burst"],
+        timelineTags: ["buff",],
+
+        type: "player",
+        target: "party",
+        origin: "self",
+        shape: "circle",
+        range: 0,
+        radius: 30,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 120,
+        recastType: "ogcd",
+
+        duration: [
+        { minLevel: 50, value: 20 }
+        ],
+
+        effect: [
+            {minLevel: 50, value:"自身と周囲のPTMのクリティカル発生率を10%UP"}
+        ],
+
+        requirements: [],
+    
+        notes: [],
+
+        icon: "icons/DRG/Battle_Litany.png"
+    }, 
     ]; 
 
 // ============================
@@ -2295,9 +2345,10 @@ const SHAPE_LABEL = {
         minLv: 15,
         group: "mug",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["debuff","burst"],
-        timelineTags: ["buff"],
+        timelineTags: ["buff",],
 
         type: "player",
         target: "enemys",
@@ -2373,7 +2424,8 @@ const SHAPE_LABEL = {
         minLv: 66,
         group: "mug",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["debuff","burst"],
         timelineTags: ["buff"],
 
@@ -2575,9 +2627,10 @@ const SHAPE_LABEL = {
         minLv: 50,
         group: "battle_voice",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["buff","burst"],
-        timelineTags: ["buff"],
+        timelineTags: ["buff",],
 
         type: "player",
         target: "party",
@@ -2693,7 +2746,8 @@ const SHAPE_LABEL = {
         minLv: 90,
         group: "radiant_finale",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["buff", "party","burst"],
         timelineTags: ["buff"],
 
@@ -3406,7 +3460,8 @@ const SHAPE_LABEL = {
         minLv: 66,
         group: "searing_light",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["buff", "party","burst"],
         timelineTags: ["buff"],
 
@@ -3645,7 +3700,8 @@ const SHAPE_LABEL = {
         minLv: 58,
         group: "embolden",
 
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["buff", "party","burst"],
         timelineTags: ["buff"],
 
@@ -3845,7 +3901,8 @@ const SHAPE_LABEL = {
         minLv: 70,
         group: "starry_muse",
         
-        category: "burst_120",
+        category: "burst",
+        burst: "120s",
         tags: ["buff","party","burst"],
         timelineTags: ["buff"],
 
@@ -3981,6 +4038,7 @@ const JOB_SKILLS = {
         //並び替え
         let displaySkills = Object.values(selectedByGroup);
 
+        //カテゴリ絞り込み
         if(categoryFilter !== "all") {
             displaySkills = displaySkills.filter(skill => {
 
@@ -3993,6 +4051,13 @@ const JOB_SKILLS = {
                 }
                 return cat === categoryFilter;
             });
+        }
+
+        if (burstFilter !== "all") {
+            displaySkills = displaySkills.filter(skill => {
+            return skill.burst === burstFilter;
+            });
+        console.log(displaySkills.map(s => s.name));
         }
 
         if (sortMode === "level") {
