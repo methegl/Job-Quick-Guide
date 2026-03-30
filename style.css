@@ -171,6 +171,7 @@ body{
 .skill-card{
     background: var(--bg-card);
     border: 1px solid var(--card-border);
+    border-radius: 10px;
     color: var(--text-main);
 }
 
@@ -404,4 +405,111 @@ body.dark .alchemy-footer:hover{
     border-bottom:1px solid rgba(255,215,0,0.4);
 
     text-align:center;
+}
+
+
+select {
+    background: #e8d8b5;          /* 紙っぽい色 */
+    color: #5a3e1b;               /* 濃い茶（文字） */
+    border: 1px solid #b88a3b;    /* 真鍮枠 */
+
+    padding: 6px 28px 6px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 1px 2px rgba(0,0,0,0.15),
+        inset 0 1px 2px rgba(255,255,255,0.2);
+}
+
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #b88a3b; /* 真鍮 */
+    pointer-events: none;
+    font-size: 10px;
+}
+
+select:hover {
+    box-shadow:
+        0 0 5px rgba(184,138,59,0.5),
+        inset 0 0 5px rgba(184,138,59,0.25);
+        background: #f2e6c9; /* 少し明るく */
+}
+
+select:focus {
+    outline: none;
+    box-shadow:
+        0 0 6px rgba(184,138,59,0.7),
+        inset 0 0 6px rgba(184,138,59,0.3);
+}
+
+/* ダーク用 */
+body.dark select {
+    background: #111;
+    color: #c9a24a;
+    border: 1px solid #c9a24a;
+
+    box-shadow:
+        0 0 5px rgba(201,162,74,0.3),
+        inset 0 0 5px rgba(201,162,74,0.2);
+}
+
+body.dark .select-wrapper::after {
+    color: #c9a24a;
+}
+
+body.dark select:hover {
+    box-shadow:
+        0 0 8px rgba(201,162,74,0.6),
+        inset 0 0 8px rgba(201,162,74,0.3);
+}
+
+.ultimate-buttons {
+    margin-bottom: 10px;
+}
+
+.ultimate-buttons button {
+    background: #e8d8b5;
+    color: #5a3e1b;
+    border: 1px solid #b88a3b;
+    border-radius: 6px;
+    padding: 4px 10px;
+    margin-right: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.ultimate-buttons button:hover {
+    background: #f2e6c9;
+}
+
+.ultimate-buttons button.active {
+    background: #b88a3b;
+    color: #fff;
+}
+
+/* ダーク */
+body.dark .ultimate-buttons button {
+    background: #111;
+    color: #c9a24a;
+    border: 1px solid #c9a24a;
+}
+
+body.dark .ultimate-buttons button:hover {
+    box-shadow: 0 0 6px rgba(201,162,74,0.6);
 }

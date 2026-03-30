@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.57");
+console.log("app.js loaded v0.6");
 
 // ============================
 // DOM取得
@@ -4364,7 +4364,35 @@ if (statusBar.hidden) {
 const jobButtons = document.querySelectorAll(".job");
 const currentJobEl = document.getElementById("currentJob");
 
-//console.log("clicked shortName=", shortName);
+// 絶モード
+document.querySelectorAll(".ultimate-buttons button").forEach(btn => {
+    btn.addEventListener("click", () => {
+        if (!currentJobKey) return;
+
+        const level = Number(btn.dataset.level);
+
+        // スライダーの値を変更
+        lv.value = level;
+        lvValue.textContent = level;
+
+        // active切り替え
+        document.querySelectorAll(".ultimate-buttons button").forEach(b => {
+            b.classList.remove("active");
+        });
+        btn.classList.add("active");
+
+        // 再描画
+        renderSkills(currentJobKey);
+
+        // タイトル更新
+        const shortName = currentJobEl.textContent.split(" / ")[1] || "";
+        if (shortName) {
+            document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
+        }
+    });
+});
+
+
 
 jobButtons.forEach(button => {
     button.addEventListener("click",function(){
@@ -4409,6 +4437,7 @@ jobButtons.forEach(button => {
         document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
     });
 });
+
 
 
 // ============================

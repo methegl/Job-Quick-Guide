@@ -7,8 +7,10 @@
         <link rel="stylesheet" href="style.css?v=055">
     </head>
     <body class="dark"></class=>
-        <h1>スキルクイックガイド（β版）</h1>
         <a href="changelog.html">更新履歴</a>
+        <h4>各ジョブのレベル毎に使えるスキル・効果をまとめたジョブガイドです。</h4>
+        <h4>公式ジョブガイドでフォローしきれない部分（シンク時の効果）を見れるようにしています。</h4>
+
         <h5>使い方：ジョブボタンをクリック▶スライダーを動かす</h5>
         <h5>そのレベルで使える軽減・ヒールスキルが出ます</h5>
         <h5>🌙と☀️のアイコンでダークモードの切り替えが可能です</h5>
@@ -65,6 +67,13 @@
         </div>
 
         <!-- 現在選択中ジョブ表示 -->
+        <div class="ultimate-buttons">
+            <button data-level="70">Lv70 絶バハ・絶テマ</button>
+            <button data-level="80">Lv80 絶アレキ</button>
+            <button data-level="90">Lv90 絶竜詩・絶オメガ</button>
+            <button data-level="100">Lv100 絶エデン</button>
+        </div>
+
         <div id="statusBar" hidden>
             <strong id="currentJob"></strong>
             Lv:
@@ -72,23 +81,31 @@
             <input id="lv" type="range" min="1" max="100" value="100">
 
             並び替え:
+            <div class="select-wrapper">
             <select id="sortSelect">
                 <option value="level">習得順</option>
                 <option value="recast">リキャスト順</option>
             </select>
+            </div>
 
             <!-- カテゴリ絞り込み -->
              カテゴリ:
+             <div class="select-wrapper">
              <select id="categorySelect">
                 <option value="all">すべて</option>
                 <option value="mitigation">軽減</option>
                 <option value="heal">回復</option>
                 </select>
+            </div>
+            バースト:
+            <div class="select-wrapper">
                 <select id="burstFilter">
-                <option value="120s">120秒バースト</option>
-                <option value="60s">60秒バースト</option>
+                <option value="all">すべて</option>
+                <option value="120s">120秒</option>
+                <option value="60s">60秒</option>
                 <option value="other">その他</option>
             </select>
+            </div>
         </div>
 
         <!-- スキル表示エリア -->
