@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.7");
+console.log("app.js loaded v0.71");
 
 // ============================
 // DOM取得
@@ -7060,6 +7060,12 @@ const JOB_SKILLS = {
             card.appendChild(noteEl);
         }
     }
+
+    skillList.appendChild(card);
+});
+
+// renderSkills 終了
+}
     
 
 // ============================
@@ -7174,35 +7180,31 @@ jobButtons.forEach(button => {
 
 
 // ============================
-// モード切替（保存有）
-// ============================
-// ============================
 // モード切替（保存あり）
 // ============================
 document.addEventListener("DOMContentLoaded", () => {
-
     const toggle = document.getElementById("themeToggle");
+
+    // themeToggle がないページでは何もしない
+    if (!toggle) return;
 
     // 保存されたテーマを読み込む
     const savedTheme = localStorage.getItem("theme");
 
-    if(savedTheme === "light"){
+    if (savedTheme === "light") {
         document.body.classList.remove("dark");
-    }else{
+    } else {
         document.body.classList.add("dark");
     }
 
     // トグルクリック
     toggle.addEventListener("click", () => {
-
         document.body.classList.toggle("dark");
 
-        if(document.body.classList.contains("dark")){
-            localStorage.setItem("theme","dark");
-        }else{
-            localStorage.setItem("theme","light");
+        if (document.body.classList.contains("dark")) {
+            localStorage.setItem("theme", "dark");
+        } else {
+            localStorage.setItem("theme", "light");
         }
-
     });
-
 });
