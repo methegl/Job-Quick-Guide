@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.6");
+console.log("app.js loaded v0.7");
 
 // ============================
 // DOM取得
@@ -8,6 +8,7 @@ const lvValue = document.getElementById("lvValue");
 const statusBar = document.getElementById("statusBar");
 const skillArea = document.getElementById("skillArea");
 const skillList = document.getElementById("skillList");
+const currentJobEl = document.getElementById("currentJob");
 
 let sortMode = "level";
 const sortSelect = document.getElementById("sortSelect");
@@ -1712,9 +1713,9 @@ const SHAPE_LABEL = {
 // ============================
 // 賢者スキルデータ
 // ============================
-    const SEG_SKILLS = [
+    const SGE_SKILLS = [
      {
-        id: "seg_egeiro",
+        id: "sge_egeiro",
         name: "エゲイロー",
         minLv: 12,
         group: "egeiro",
@@ -1749,7 +1750,7 @@ const SHAPE_LABEL = {
 
         notes: [],
         
-        icon: "icons/SEG/Egeiro.png"
+        icon: "icons/SGE/Egeiro.png"
     },   
     ]; 
 
@@ -2354,7 +2355,7 @@ const SHAPE_LABEL = {
         timelineTags: ["buff",],
 
         type: "player",
-        target: "enemys",
+        target: "enemies",
         origin: "self",
         shape: "cone",
         range: 3,
@@ -2433,7 +2434,7 @@ const SHAPE_LABEL = {
         timelineTags: ["buff"],
 
         type: "player",
-        target: "enemys",
+        target: "enemies",
         origin: "self",
         shape: "cone",
         range: 8,
@@ -2706,10 +2707,10 @@ const SHAPE_LABEL = {
         icon: "icons/BRD/Troubadour.png"
     },
     {
-        id: "brd_troubadour",
+        id: "brd_minne",
         name: "地神のミンネ",
         minLv: 62,
-        group: "troubadour",
+        group: "minne",
 
         category: "buff",
         tags: ["buff", "heal"],
@@ -2741,7 +2742,7 @@ const SHAPE_LABEL = {
 
         notes: [],
 
-        icon: "icons/BRD/Troubadour.png"
+        icon: "icons/BRD/Natures_Minne.png"
     },      
     {
         id: "brd_radiant_finale",
@@ -3050,7 +3051,7 @@ const SHAPE_LABEL = {
         timelineTags: ["buff"],
 
         type: "player",
-        target: "singlAlly",
+        target: "singleAlly",
         origin: "self",
         shape: "single",
         range: 30,
@@ -3996,7 +3997,7 @@ const JOB_SKILLS = {
     WHM: WHM_SKILLS,
     SCH: SCH_SKILLS,
     AST: AST_SKILLS,
-    SGE: SEG_SKILLS,
+    SGE: SGE_SKILLS,
     MNK: MNK_SKILLS,
     SAM: SAM_SKILLS,
     DRG: DRG_SKILLS,
@@ -4058,10 +4059,15 @@ const JOB_SKILLS = {
 
         if (burstFilter !== "all") {
             displaySkills = displaySkills.filter(skill => {
-            return skill.burst === burstFilter;
+                if (burstFilter === "other") {
+                    return skill.burst && skill.burst !== "120s" && skill.burst !== "60s";
+                }
+                return skill.burst === burstFilter;
             });
-        console.log(displaySkills.map(s => s.name));
         }
+
+        console.log(displaySkills.map(s => s.name));
+        
 
         if (sortMode === "level") {
             displaySkills.sort((a,b) => {
@@ -4143,46 +4149,42 @@ const JOB_SKILLS = {
             };
 
             //効果時間
-            if (Array.isArray(skill.duration)) {
-                //ラベル追加
-                const labelEl = document.createElement("span");
-                labelEl.className = "time-item";
-                labelEl.textContent = "効果時間 ";
-                timeWrap.appendChild(labelEl);
-
-                //今のLvで使えるdurationだけ残す
+            if (Array.isArray(skill.duration) && skill.duration.length > 0) {
                 const validDurations = skill.duration.filter((d) => currentLv >= d.minLevel);
 
-                //ラベルごとに最新だけ残す
-                const latestByLabel = {};
-                
-                validDurations.forEach(d => {
-                    const key = d.label || ""; //ラベルがないものは""でまとめる
+                if (validDurations.length > 0) {
+                    const labelEl = document.createElement("span");
+                    labelEl.className = "time-item";
+                    labelEl.textContent = "効果時間 ";
+                    timeWrap.appendChild(labelEl);
 
-                    if (!latestByLabel[key] || d.minLevel > latestByLabel[key].minLevel) {
-                        latestByLabel[key] = d;
-                    }
-                });
+                    const latestByLabel = {};
 
-                //表示用に配列にして表示
+                    validDurations.forEach(d => {  
+                        const key = d.label || "";
 
-                Object.values(latestByLabel).forEach(d => {
-                    const dEl = document.createElement("span");
-                    dEl.className = "time-item";
+                        if (!latestByLabel[key] || d.minLevel > latestByLabel[key].minLevel) {
+                            latestByLabel[key] = d;
+                        }
+                    });
+
+                    Object.values(latestByLabel).forEach(d => {
+                        const dEl = document.createElement("span");
+                        dEl.className = "time-item";
 
                     if (d.label) {
                         dEl.textContent = `${d.label} ${d.value}s`;
                     } else {
                         dEl.textContent = `${d.value}s`;
                     }
-                    
+
                     timeWrap.appendChild(dEl);
                 });
-
-            } else if (durationSec != null) {
-                durationEl.textContent = `効果時間 ${durationSec}s`;
-                timeWrap.appendChild(durationEl);
-            };
+            }
+        } else if (durationSec != null) {
+            durationEl.textContent = `効果時間 ${durationSec}s`;
+            timeWrap.appendChild(durationEl);
+        }
 
             //範囲
             let rangeText = "";
@@ -4367,7 +4369,7 @@ if (statusBar.hidden) {
 // ジョブボタン関連
 // ============================
 const jobButtons = document.querySelectorAll(".job");
-const currentJobEl = document.getElementById("currentJob");
+
 
 // 絶モード
 document.querySelectorAll(".ultimate-buttons button").forEach(btn => {
@@ -4460,10 +4462,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(savedTheme === "light"){
         document.body.classList.remove("dark");
-        toggle.checked = false;
     }else{
         document.body.classList.add("dark");
-        toggle.checked = true;
     }
 
     // トグルクリック

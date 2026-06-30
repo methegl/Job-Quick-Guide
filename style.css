@@ -173,6 +173,7 @@ body{
     border: 1px solid var(--card-border);
     border-radius: 10px;
     color: var(--text-main);
+    padding: 12px;
 }
 
 /* 上段レイアウト */
@@ -189,7 +190,7 @@ body{
     opacity:0.9;
 }
 
-.skill-rigth-wrap{
+.skill-right-wrap{
     display: flex;
     gap: 12px;
     align-items: center;
@@ -372,6 +373,7 @@ body.dark .alchemy-footer:hover{
   text-shadow: 0 0 8px rgba(255,215,120,0.8);
 }
 
+/* フィードバック系
 .feedback{
     text-align: center;
     font-size: 12px;
@@ -406,7 +408,7 @@ body.dark .alchemy-footer:hover{
 
     text-align:center;
 }
-
+*/
 
 select {
     background: #e8d8b5;          /* 紙っぽい色 */
@@ -445,10 +447,10 @@ select {
 }
 
 select:hover {
+    background: #f2e6c9; /* 少し明るく */
     box-shadow:
         0 0 5px rgba(184,138,59,0.5),
         inset 0 0 5px rgba(184,138,59,0.25);
-        background: #f2e6c9; /* 少し明るく */
 }
 
 select:focus {
