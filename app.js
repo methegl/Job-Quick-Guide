@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.71");
+console.log("app.js loaded v0.72");
 
 // ============================
 // DOM取得
@@ -303,7 +303,7 @@ const TANK_ROLE_ACTIONS = [
 
         ],
 
-        icon: "icons/ROLE/Rampart.png"
+        icon: "icons/RoleAction/TANK/Rampart.png"
     },
     {
         name: "ロウブロウ",
@@ -342,7 +342,7 @@ const TANK_ROLE_ACTIONS = [
             "スタンが有効な詠唱・雑魚止め用"
         ],
 
-        icon: "icons/ROLE/Low_Blow.png"
+        icon: "icons/RoleAction/TANK/Low_Blow.png"
     },
     {
         name: "挑発",
@@ -383,7 +383,7 @@ const TANK_ROLE_ACTIONS = [
             "挑発後は追撃で敵視を安定させる"
         ],
 
-        icon: "icons/ROLE/Provoke.png"
+        icon: "icons/RoleAction/TANK/Provoke.png"
     },
     {
         name: "インタージェクト",
@@ -420,7 +420,7 @@ const TANK_ROLE_ACTIONS = [
             "点滅詠唱バーの中断用"
         ],
 
-        icon: "icons/ROLE/Interject.png"
+        icon: "icons/RoleAction/TANK/Interject.png"
     },
     {
         name: "リプライザル",
@@ -467,7 +467,7 @@ const TANK_ROLE_ACTIONS = [
             "敵に付与する軽減。[効果範囲は[自分中心5m]",
         ],
 
-        icon: "icons/ROLE/Reprisal.png"
+        icon: "icons/RoleAction/TANK/Reprisal.png"
     },
     {
         name: "アームズレングス",
@@ -511,7 +511,7 @@ const TANK_ROLE_ACTIONS = [
             "まとめ狩りでは物理攻撃を受けることでスロウ軽減としても使える"
         ],
 
-        icon: "icons/ROLE/Arms_Length.png"
+        icon: "icons/RoleAction/TANK/Arms_Length.png"
     },
     {
         name: "シャーク",
@@ -552,7 +552,7 @@ const TANK_ROLE_ACTIONS = [
             "相方タンクに向けて使う。相方タンクの挑発の後に使うと敵視が安定しやすい"
         ],
 
-        icon: "icons/ROLE/Shirk.png"
+        icon: "icons/RoleAction/TANK/Shirk.png"
     }
 ];
 
