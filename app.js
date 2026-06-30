@@ -107,7 +107,8 @@ const TAG_LABEL = {
     HoT: "HoT",
     pet: "ペット",
     movement: "移動補助",
-    burst: "バースト"
+    burst: "バースト",
+    mp: "MP",
 };
 
 //条件データ
@@ -131,6 +132,10 @@ const RESOURCE = {
     FAIRY: "fairy",
     SERAPH: "seraph",
     SERAPHISM: "seraphism",
+    KARDIA: "kardia",
+    EUKRASIA: "eukrasia",
+    ADDERSGALL: "addersgall",
+    ADDERSTING: "addersting",
 
     NINKI: "ninki",
     CODA: "coda",
@@ -157,6 +162,10 @@ const RESOURCE_LABEL = {
     fairy: "フェアリー",
     seraph: "セラフィム",
     seraphism: "セラフィズム",
+    kardia: "カルディア",
+    eukrasia: "エウクラシア",
+    addersgall: "アダーガル",
+    addersting: "アダースティング",
 
     ninki: "忍気",
     coda: "コーダシンボル",
@@ -185,8 +194,6 @@ const SHAPE_LABEL = {
   single: "単体",
   self: "自分自身"
 };
-
-
 
 // ============================
 // スキルカテゴリデータ
@@ -226,21 +233,205 @@ const SHAPE_LABEL = {
 // line    = 直線範囲    → range + width
 // donut   = ドーナツ範囲 → innerRadius + outerRadius
 
-// ============================
-// ナイトスキルデータ
-// ============================
-    const PLD_SKILLS = [
+//typeデータ
+//type: "player" // ジョブ固有アクション
+//type: "role"   // ロールアクション
+//type: "pet"    // 妖精・召喚獣など
+
+// =====================
+// ロールアクション生成 helper
+// =====================
+
+const makeRoleSkill = (jobKey, skill, override = {}) => ({
+    ...skill,
+    ...override,
+
+    id: override.id ?? `${jobKey.toLowerCase()}_${skill.group}`,
+
+    notes: [
+        ...(skill.notes ?? []),
+        ...(override.notes ?? [])
+    ]
+});
+
+// =====================
+// ロールアクション　TANK
+// =====================
+const TANK_ROLE_ACTIONS = [
     {
-        id: "pld_second_wind",
+        name: "ランパート",
+        minLv: 8,
+        group: "rampart",
+
+        category: "mitigation",
+        tags: ["mitigation", "buff"],
+        timelineTags: ["mitigation"],
+
+        type: "role",
+        target: "self",
+        origin: "self",
+        shape: "self",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 8, label: "被ダメージ軽減", value: 20 },
+            { minLevel: 94, label: "HP回復効果上昇", value: 20 }
+        ],
+
+        effect: [
+            {
+                minLevel: 8,
+                value: "自身の被ダメージを20%軽減"
+            },
+            {
+                minLevel: 94,
+                value: "自身の被ダメージを20%軽減\n自身が受けるHP回復効果を15%上昇"
+            }
+        ],
+
+        requirements: [],
+
+        notes: [
+
+        ],
+
+        icon: "icons/ROLE/Rampart.png"
+    },
+    {
+        name: "ロウブロウ",
+        minLv: 12,
+        group: "low_blow",
+
+        category: "utility",
+        tags: ["debuff"],
+        timelineTags: ["debuff"],
+
+        type: "role",
+        target: "enemy",
+        origin: "target",
+        shape: "single",
+        range: 3,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 25,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 12, value: 5 }
+        ],
+
+        effect: [
+            { minLevel: 12, value: "対象をスタンさせる" }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "スタンが有効な詠唱・雑魚止め用"
+        ],
+
+        icon: "icons/ROLE/Low_Blow.png"
+    },
+    {
+        name: "挑発",
+        minLv: 15,
+        group: "provoke",
+
+        category: "utility",
+        tags: ["enmity"],
+        timelineTags: ["enmity"],
+
+        type: "role",
+        target: "enemy",
+        origin: "target",
+        shape: "single",
+        range: 25,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 30,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {
+                minLevel: 15,
+                value: "対象を挑発し、自身への敵視を最高位にしたうえで、さらに自身への敵視を上昇"
+            }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "タンクスイッチ用",
+            "挑発後は追撃で敵視を安定させる"
+        ],
+
+        icon: "icons/ROLE/Provoke.png"
+    },
+    {
+        name: "インタージェクト",
+        minLv: 18,
+        group: "interject",
+
+        category: "utility",
+        tags: ["debuff"],
+        timelineTags: ["debuff"],
+
+        type: "role",
+        target: "enemy",
+        origin: "target",
+        shape: "single",
+        range: 3,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 30,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            { minLevel: 18, value: "対象のアクション詠唱を中断させる" }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "点滅詠唱バーの中断用"
+        ],
+
+        icon: "icons/ROLE/Interject.png"
+    },
+    {
         name: "リプライザル",
         minLv: 22,
         group: "reprisal",
 
         category: "mitigation",
-        tags:["mitigation","debuff","role"],
+        tags: ["mitigation", "debuff"],
         timelineTags: ["mitigation"],
 
-        type: "player",
+        type: "role",
         target: "enemies",
         origin: "self",
         shape: "circle",
@@ -248,7 +439,7 @@ const SHAPE_LABEL = {
         radius: 5,
 
         resourceChange: [],
-        skillType:"ability",
+        skillType: "ability",
         charges: null,
         castTime: null,
         recast: 60,
@@ -260,156 +451,178 @@ const SHAPE_LABEL = {
         ],
 
         effect: [
-            {minLevel: 8 , value:"範囲内の敵の与ダメージ10%減少"}
+            {
+                minLevel: 22,
+                value: "自身の周囲の敵の与ダメージを10%減少"
+            },
+            {
+                minLevel: 98,
+                value: "自身の周囲の敵の与ダメージを10%減少\nLv98以降: 効果時間15秒"
+            }
         ],
 
         requirements: [],
 
-        notes: ["効果範囲は[自分中心5m]"],
+        notes: [
+            "敵に付与する軽減",
+        ],
 
-        icon: "icons/RoleAction/TANK/Reprisal.png"
+        icon: "icons/ROLE/Reprisal.png"
     },
+    {
+        name: "アームズレングス",
+        minLv: 32,
+        group: "arms_length",
+
+        category: "utility",
+        tags: ["buff", "debuff"],
+        timelineTags: ["buff"],
+
+        type: "role",
+        target: "self",
+        origin: "self",
+        shape: "self",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 120,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 32, label: "ノックバック無効", value: 6 },
+            { minLevel: 32, label: "スロウ", value: 15 }
+        ],
+
+        effect: [
+            {
+                minLevel: 32,
+                value: "一部を除くノックバックと引き寄せを無効化\n効果中に自身が物理攻撃を受けると、攻撃者に20%スロウを付与"
+            }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "ノックバック無効用。「アムレン」とコールされることが多い",
+            "まとめ狩りでは物理攻撃を受けることでスロウ軽減としても使える"
+        ],
+
+        icon: "icons/ROLE/Arms_Length.png"
+    },
+    {
+        name: "シャーク",
+        minLv: 48,
+        group: "shirk",
+
+        category: "utility",
+        tags: ["enmity", "party"],
+        timelineTags: ["enmity"],
+
+        type: "role",
+        target: "singleAlly",
+        origin: "self",
+        shape: "single",
+        range: 25,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 120,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {
+                minLevel: 48,
+                value: "自身に向けられている敵視の25%を対象のPTMに移す"
+            }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "タンクスイッチ後の敵視調整用",
+            "相方タンクに向けて使う。相方タンクの挑発の後に使うと敵視が安定しやすい"
+        ],
+
+        icon: "icons/ROLE/Shirk.png"
+    }
+];
+
+// =====================
+// ロールアクション生成 HEALER
+// =====================
+
+
+// =====================
+// ロールアクション生成 MELEE
+// =====================
+
+// =====================
+// ロールアクション生成 RANGED
+// =====================
+
+
+// =====================
+// ロールアクション生成 CASTER
+// =====================
+
+
+
+
+// ============================
+// ナイトスキルデータ
+// ============================
+    const PLD_SKILLS = [
+    // PLD固有スキル
+    
+    
+    // ロールアクション
+    ...TANK_ROLE_ACTIONS.map(skill => makeRoleSkill("PLD", skill))
      ]
 
 // ============================
 // 戦士スキルデータ
 // ============================
     const WAR_SKILLS = [
-        {
-        id: "pld_second_wind",
-        name: "リプライザル",
-        minLv: 22,
-        group: "reprisal",
-
-        category: "mitigation",
-        tags:["mitigation","debuff","role"],
-        timelineTags: ["mitigation"],
-
-        type: "player",
-        target: "enemies",
-        origin: "self",
-        shape: "circle",
-        range: 0,
-        radius: 5,
-
-        resourceChange: [],
-        skillType:"ability",
-        charges: null,
-        castTime: null,
-        recast: 60,
-        recastType: "ogcd",
-
-        duration: [
-            { minLevel: 22, value: 10 },
-            { minLevel: 98, value: 15 }
-        ],
-
-        effect: [
-            {minLevel: 8 , value:"範囲内の敵の与ダメージ10%減少"}
-        ],
-
-        requirements: [],
-
-        notes: ["効果範囲は[自分中心5m]"],
-
-        icon: "icons/RoleAction/TANK/Reprisal.png"
-    },
+        // WAR固有スキル
+    
+    // ロールアクション
+    ...TANK_ROLE_ACTIONS.map(skill => makeRoleSkill("WAR", skill))
      ];
 
 // ============================
 // 暗黒騎士スキルデータ
 // ============================
     const DRK_SKILLS = [
-        {
-        id: "pld_second_wind",
-        name: "リプライザル",
-        minLv: 22,
-        group: "reprisal",
-
-        category: "mitigation",
-        tags:["mitigation","debuff","role"],
-        timelineTags: ["mitigation"],
-
-        type: "player",
-        target: "enemies",
-        origin: "self",
-        shape: "circle",
-        range: 0,
-        radius: 5,
-
-        resourceChange: [],
-        skillType:"ability",
-        charges: null,
-        castTime: null,
-        recast: 60,
-        recastType: "ogcd",
-
-        duration: [
-            { minLevel: 22, value: 10 },
-            { minLevel: 98, value: 15 }
-        ],
-
-        effect: [
-            {minLevel: 8 , value:"範囲内の敵の与ダメージ10%減少"}
-        ],
-
-        requirements: [],
-
-        notes: ["効果範囲は[自分中心5m]"],
-
-        icon: "icons/RoleAction/TANK/Reprisal.png"
-    },
+        // DRK固有スキル
+    
+    // ロールアクション
+    ...TANK_ROLE_ACTIONS.map(skill => makeRoleSkill("DRK", skill))
       ];
 
 // ============================
 // ガンブレスキルデータ
 // ============================
     const GNB_SKILLS = [
-        {
-        id: "pld_second_wind",
-        name: "リプライザル",
-        minLv: 22,
-        group: "reprisal",
-
-        category: "mitigation",
-        tags:["mitigation","debuff","role"],
-        timelineTags: ["mitigation"],
-
-        type: "player",
-        target: "enemies",
-        origin: "self",
-        shape: "circle",
-        range: 0,
-        radius: 5,
-
-        resourceChange: [],
-        skillType:"ability",
-        charges: null,
-        castTime: null,
-        recast: 60,
-        recastType: "ogcd",
-
-        duration: [
-            { minLevel: 22, value: 10 },
-            { minLevel: 98, value: 15 }
-        ],
-
-        effect: [
-            {minLevel: 8 , value:"範囲内の敵の与ダメージ10%減少"}
-        ],
-
-        requirements: [],
-
-        notes: ["効果範囲は[自分中心5m]"],
-
-        icon: "icons/RoleAction/TANK/Reprisal.png"
-    },
+        // GNB固有スキル
+    
+    // ロールアクション
+    ...TANK_ROLE_ACTIONS.map(skill => makeRoleSkill("GNB", skill))
        ];
 
 // ============================
 // 白魔道士スキルデータ
 // ============================
     const WHM_SKILLS = [
+        // WHM固有スキル
     {
         id: "whm_raise",
         name: "レイズ",
@@ -446,12 +659,218 @@ const SHAPE_LABEL = {
 
         icon: "icons/WHM/Raise.png"
     },
+    // ロールアクション
+    {
+    id: "sge_repose",
+    name: "リポーズ",
+    minLv: 8,
+    group: "repose",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemy",
+    origin: "target",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -600 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 8, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 8, value: "対象に睡眠を付与" }
+    ],
+
+    requirements: [],
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Repose.png"
+},
+    {
+    id: "whm_esuna",
+    name: "エスナ",
+    minLv: 10,
+    group: "esuna",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -400 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 1,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 10, value: "対象にかかった一部の弱体効果を1つ解除" }
+    ],
+
+    requirements: [],
+    notes: [
+        "白線付きデバフが解除対象"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Esuna.png"
+},
+{
+    id: "whm_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+        "リキャスト毎に使うことを推奨"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Lucid_Dreaming.png"
+},
+{
+    id: "whm_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "基本は蘇生魔法とセットで使うことが多い",
+        "絶等の高難易度の場合、回復魔法や攻撃魔法に使うこともある",
+    ],
+
+    icon: "icons/RoleAction/HEALER/Swiftcast.png"
+},
+{
+    id: "whm_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Surecast.png"
+},
     ]; 
 
 // ============================
 // 学者スキルデータ
 // ============================
     const SCH_SKILLS = [
+        // SCH固有スキル
     {
         id: "sch_physick",
         name: "フィジク",
@@ -598,14 +1017,14 @@ const SHAPE_LABEL = {
         ],
 
         effect: [
-            {minLevel: 30, value:"対象のHP回復+バリア付与\n回復力:300 バリア:回復力の125%\n賢者の[エウクラシア系]と競合"},
-            {minLevel: 85, value:"対象のHP回復+バリア付与\n回復力:300 バリア:回復力の180%\n賢者の[エウクラシア系]と競合"}
+            {minLevel: 30, value:"対象のHP回復+バリア付与\n回復力:300 バリア:回復力の125%"},
+            {minLevel: 85, value:"対象のHP回復+バリア付与\n回復力:300 バリア:回復力の180%"}
         ],
 
         requirements: [],
 
         notes: [
-                "賢者の[エウクラシア・ディアグノシス][エウクラシア・プログノシス]と競合",
+                "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
                 "[秘策]対象スキル",
                 "クリティカル時:[激励]付与(バリア量2倍)"],
 
@@ -651,7 +1070,7 @@ const SHAPE_LABEL = {
         requirements: [],
 
         notes: [
-                "賢者の[エウクラシア・ディアグノシス][エウクラシア・プログノシス]と競合",
+                "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
                 "[秘策]対象スキル",
                 ],
 
@@ -827,7 +1246,7 @@ const SHAPE_LABEL = {
 
         effect: [
             { minLevel: 50, value: "エリア内10%軽減" },
-            { minLevel: 78, value: "エリア内10%軽減+HoT付与"}
+            { minLevel: 78, value: "エリア内10%軽減+HoT付与\n回復力:100"}
         ],
 
         requirements: [
@@ -959,7 +1378,7 @@ const SHAPE_LABEL = {
         effect: [
             {
                 minLevel: 58,
-                value: "[鼓舞激励の策][士気高揚の策][意気軒高の策]のバリア分を回復効果に置き換える"
+                value: "[鼓舞激励の策]/[士気高揚の策]/[意気軒高の策]のバリア分を回復効果に置き換える"
             }
         ],
 
@@ -1196,7 +1615,7 @@ const SHAPE_LABEL = {
 
         requirements: [],
 
-        notes: ["対象スキル[鼓舞激励の策][士気高揚の策][意気軒高の策][不撓不屈の策][深謀遠慮の策]"],
+        notes: ["対象:[鼓舞激励の策]/[士気高揚の策]/[意気軒高の策]/[不撓不屈の策]/[深謀遠慮の策]"],
 
     icon: "icons/SCH/Recitation.png"
     },
@@ -1447,7 +1866,7 @@ const SHAPE_LABEL = {
         requirements: [],
 
         notes: [
-                "賢者の[エウクラシア・ディアグノシス][エウクラシア・プログノシス]と競合",
+                "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
                 "[秘策]対象スキル",
                 ],
 
@@ -1482,7 +1901,7 @@ const SHAPE_LABEL = {
         ],
 
         effect: [
-            {minLevel: 96, value:"[鼓舞激励の策][意気軒高の策]を[マニフェステーション][アクセッション]に強化\n範囲内のPTMにHoT付与"},
+            {minLevel: 96, value:"[鼓舞激励の策]/[意気軒高の策]を[マニフェステーション]/[アクセッション]に強化\n範囲内のPTMにHoT付与"},
         ],
 
         requirements: [
@@ -1535,7 +1954,7 @@ const SHAPE_LABEL = {
         ],
         
         notes: [
-                "賢者の[エウクラシア・ディアグノシス][エウクラシア・プログノシス]と競合",
+                "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
                 "[秘策]効果対象外",
                 "クリティカル時:[激励]付与(バリア量2倍)"],
 
@@ -1580,7 +1999,7 @@ const SHAPE_LABEL = {
         ],
 
         notes: [
-                "賢者の[エウクラシア・ディアグノシス][エウクラシア・プログノシス]と競合",
+                "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
                 "[秘策]効果対象外",
                 ],
 
@@ -1663,7 +2082,212 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/SCH/Pet_Actions/Seraphic_Veil.png"
-    }  
+    } ,
+    // ロールアクション
+    {
+    id: "sch_repose",
+    name: "リポーズ",
+    minLv: 8,
+    group: "repose",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemy",
+    origin: "target",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -600 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 8, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 8, value: "対象に睡眠を付与" }
+    ],
+
+    requirements: [],
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Repose.png"
+},
+    {
+    id: "sch_esuna",
+    name: "エスナ",
+    minLv: 10,
+    group: "esuna",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -400 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 1,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 10, value: "対象にかかった一部の弱体効果を1つ解除" }
+    ],
+
+    requirements: [],
+    notes: [
+        "白線付きデバフが解除対象"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Esuna.png"
+},
+{
+    id: "sch_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+        "リキャスト毎に使うことを推奨"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Lucid_Dreaming.png"
+},
+{
+    id: "sch_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "基本は蘇生魔法とセットで使うことが多い",
+        "絶等の高難易度の場合、回復魔法や攻撃魔法に使うこともある",
+    ],
+
+    icon: "icons/RoleAction/HEALER/Swiftcast.png"
+},
+{
+    id: "sch_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Surecast.png"
+},
 ];
 
 // ============================
@@ -1707,14 +2331,334 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/AST/Ascend.png"
-    },   
+    },
+    // ロールアクション
+    {
+    id: "ast_repose",
+    name: "リポーズ",
+    minLv: 8,
+    group: "repose",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemy",
+    origin: "target",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -600 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 8, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 8, value: "対象に睡眠を付与" }
+    ],
+
+    requirements: [],
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Repose.png"
+},
+    {
+    id: "ast_esuna",
+    name: "エスナ",
+    minLv: 10,
+    group: "esuna",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -400 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 1,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 10, value: "対象にかかった一部の弱体効果を1つ解除" }
+    ],
+
+    requirements: [],
+    notes: [
+        "白線付きデバフが解除対象"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Esuna.png"
+},
+{
+    id: "ast_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+        "リキャスト毎に使うことを推奨"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Lucid_Dreaming.png"
+},
+{
+    id: "ast_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "基本は蘇生魔法とセットで使うことが多い",
+        "絶等の高難易度の場合、回復魔法や攻撃魔法に使うこともある",
+    ],
+
+    icon: "icons/RoleAction/HEALER/Swiftcast.png"
+},
+{
+    id: "ast_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Surecast.png"
+},   
     ];
 
 // ============================
 // 賢者スキルデータ
 // ============================
     const SGE_SKILLS = [
-     {
+    {
+    id: "sge_diagnosis",
+    name: "ディアグノシス",
+    minLv: 2,
+    group: "diagnosis",
+
+    category: "heal",
+    tags: ["heal", "magic"],
+    timelineTags: ["heal"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+         { resource: RESOURCE.MP, value: -400 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 1.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 2,
+        value: "対象のHP回復 回復力:400" },
+        { minLevel: 85,
+        value: "対象のHP回復 回復力:450" }
+    ],
+
+    requirements: [],
+    notes: ["[ゾーエ]対象スキル"],
+
+    icon: "icons/SGE/Diagnosis.png"
+    },
+    {
+    id: "sge_kardia",
+    name: "カルディア",
+    minLv: 4,
+    group: "kardia",
+
+    category: "heal",
+    tags: ["heal", "buff"],
+    timelineTags: ["heal", "buff"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 5,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 4,
+            value: "自身に[カルディア]・対象に[カルディア[被]]を付与\n攻撃魔法命中時にカルディア[被]対象を回復 回復力:130" },
+        { minLevel: 85,
+            value: "自身に[カルディア]・対象に[カルディア[被]]を付与\n攻撃魔法命中時にカルディア[被]対象を回復 回復力:170" }
+    ],
+
+    requirements: [],
+    notes: ["効果時間:永続"],
+
+    icon: "icons/SGE/Kardia.png"
+    },
+    {
+    id: "sge_prognosis",
+    name: "プログノシス",
+    minLv: 10,
+    group: "prognosis",
+
+    category: "heal",
+    tags: ["heal", "party", "magic"],
+    timelineTags: ["heal"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 20,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -700 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 10, value: "範囲内のPTMのHP回復 回復力:300" }
+    ],
+
+    requirements: [],
+    notes: ["[ゾーエ]対象スキル"],
+
+    icon: "icons/SGE/Prognosis.png"
+    },
+    {
         id: "sge_egeiro",
         name: "エゲイロー",
         minLv: 12,
@@ -1751,8 +2695,1116 @@ const SHAPE_LABEL = {
         notes: [],
         
         icon: "icons/SGE/Egeiro.png"
-    },   
-    ]; 
+    },
+    {
+        id: "sge_physis",
+        name: "ピュシス",
+        minLv: 20,
+        group: "physis",
+
+        category: "heal",
+        tags: ["heal", "hot", "party"],
+        timelineTags: ["heal"],
+
+        type: "player",
+        target: "party",
+        origin: "self",
+        shape: "circle",
+        range: 0,
+        radius: 15,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 60,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 20, value: 15 }
+        ],
+
+        effect: [
+            { minLevel: 20, value: "範囲内のPTMにHoT付与 回復力:100" }
+        ],
+
+        requirements: [],
+        notes: [],
+
+        icon: "icons/SGE/Physis.png"
+    },
+    {
+    id: "sge_eukrasia",
+    name: "エウクラシア",
+    minLv: 30,
+    group: "eukrasia",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "player",
+    target: "self",
+    origin: "self",
+    shape: "single",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 1,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 30, value: "一部の魔法をエウクラシア系アクションに変化させる" }
+    ],
+
+    requirements: [],
+    notes: ["[ディアグノシス]/[プログノシス]/[ドシス]が[エウクラシア・〇〇]に変化"],
+
+    icon: "icons/SGE/Eukrasia.png"
+},
+{
+    id: "sge_eukrasian_diagnosis",
+    name: "エウクラシア・ディアグノシス",
+    minLv: 30,
+    group: "eukrasian_diagnosis",
+
+    category: ["heal", "mitigation"],
+    tags: ["heal", "barrier", "magic"],
+    timelineTags: ["heal", "barrier"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+    resourceTrigger: [
+    {
+        minLevel: 66,
+        resource: RESOURCE.ADDERSTING,
+        value: +1,
+        condition: "自身に付与したバリアが完全に吸収される"
+    }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: null,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 30, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 30,
+            value: "対象のHP回復+バリア付与\n回復力:300 バリア:回復力の125%" },
+        { minLevel: 85,
+            value: "対象のHP回復+バリア付与\n回復力:450 バリア:回復力の320%" }
+    ],
+
+    requirements: [
+        { type: "buff", buff: "eukrasia" }
+    ],
+
+    notes: [
+        {minLevel: 30, value: "学者の[鼓舞]効果と同時に付与されない"},
+        {minLevel: 30, value: "クリティカル時:エウクラシア・ディアグノシス[強]付与(バリア量2倍)"},
+        {minLevel: 30, value: "[ゾーエ]対象スキル"},
+        {minLevel: 66, value: "付与されたバリアが完全に吸収されると[アダースティング]付与"}
+    ],
+
+    icon: "icons/SGE/Eukrasian_Diagnosis.png"
+},
+{
+    id: "sge_eukrasian_prognosis",
+    name: "エウクラシア・プログノシス",
+    minLv: 30,
+    group: "eukrasian_prognosis",
+
+    category: ["heal", "mitigation"],
+    tags: ["heal", "barrier", "party", "magic"],
+    timelineTags: ["heal", "barrier"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 20,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+    resourceTrigger: [
+    {
+        minLevel: 66,
+        resource: RESOURCE.ADDERSTING,
+        value: +1,
+        condition: "自身に付与したバリアが完全に吸収される"
+    }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: null,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 30, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 30, value: "範囲内のPTMのHP回復+バリア付与\n回復力:100 バリア:回復力の230%" },
+        { minLevel: 85, value: "範囲内のPTMのHP回復+バリア付与\n回復力:100 バリア:回復力の320%" }
+    ],
+
+    requirements: [
+        { type: "buff", buff: "eukrasia" }
+    ],
+
+    notes: [
+        {minLevel: 30, value: "学者の[鼓舞]効果と同時に付与されない"},
+        {minLevel: 30, value: "[ゾーエ]対象スキル"},
+        {minLevel: 66, value: "自身に付与されたバリアが完全に吸収されると[アダースティング]付与"}
+    ],
+
+    icon: "icons/SGE/Eukrasian_Prognosis.png"
+    },
+    {
+        id: "sge_soteria",
+        name: "ソーテリア",
+        minLv: 35,
+        group: "soteria",
+
+        category: ["heal", "utility"],
+        tags: ["heal", "buff"],
+        timelineTags: ["heal", "buff"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: [
+            { minLevel: 35, value: 90 },
+            { minLevel: 94, value: 60 }
+        ],
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 35, value: 15 }
+        ],
+
+        effect: [
+            {
+                minLevel: 35,
+                value: "自身に[ソーテリア]を4スタック付与\nカルディアによる回復効果を上昇"
+            }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "カルディア対象への攻撃連動回復を強化する",
+            "カルディア運用前提"
+        ],
+
+        icon: "icons/SGE/Soteria.png"
+    },
+    {
+    id: "sge_druochole",
+    name: "ドルオコレ",
+    minLv: 45,
+    group: "druochole",
+
+    category: "heal",
+    tags: ["heal", "resource"],
+    timelineTags: ["heal"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.ADDERSGALL, value: -1 },
+        { resource: RESOURCE.MP, value: +700 }
+    ],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 1,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 45, value: "対象のHP回復 回復力:600\n自身のMPを回復" }
+    ],
+
+    requirements: [
+        { type: "resource", resource: RESOURCE.ADDERSGALL, min: 1 }
+    ],
+
+    notes: [],
+
+    icon: "icons/SGE/Druochole.png"
+},
+{
+    id: "sge_kerachole",
+    name: "ケーラコレ",
+    minLv: 50,
+    group: "kerachole",
+
+    category: ["mitigation", "heal"],
+    tags: ["mitigation", "heal", "hot", "party", "resource"],
+    timelineTags: ["mitigation", "heal"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 30,
+
+    resourceChange: [
+        { resource: RESOURCE.ADDERSGALL, value: -1 },
+        { resource: RESOURCE.MP, value: +700 }
+    ],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 30,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 50, label: "被ダメージ軽減", value: 15 },
+        { minLevel: 78, label: "継続回復効果", value: 15 }
+    ],
+
+    effect: [
+        {
+            minLevel: 50,
+            value: "範囲内のPTMの被ダメージを10%軽減\n自身のMPを回復"
+        },
+        {
+            minLevel: 78,
+            value: "範囲内のPTMの被ダメージを10%軽減+HoT付与\n回復力:100\n自身のMPを回復"
+        }
+    ],
+
+    requirements: [
+        { type: "resource", resource: RESOURCE.ADDERSGALL, min: 1 }
+    ],
+
+    notes: ["[タウロコレ]の軽減効果は同時に付与されない"],
+
+    icon: "icons/SGE/Kerachole.png"
+},
+{
+    id: "sge_ixochole",
+    name: "イックソコレ",
+    minLv: 52,
+    group: "ixochole",
+
+    category: "heal",
+    tags: ["heal", "party", "resource"],
+    timelineTags: ["heal"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 15,
+
+    resourceChange: [
+        { resource: RESOURCE.ADDERSGALL, value: -1 },
+        { resource: RESOURCE.MP, value: +700 }
+    ],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 30,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        {
+            minLevel: 52,
+            value: "範囲内のPTMのHP回復 回復力:400\n自身のMPを回復"
+        }
+    ],
+
+    requirements: [
+        { type: "resource", resource: RESOURCE.ADDERSGALL, min: 1 }
+    ],
+
+    notes: [],
+
+    icon: "icons/SGE/Ixochole.png"
+},
+{
+    id: "sge_zoe",
+    name: "ゾーエ",
+    minLv: 56,
+    group: "zoe",
+
+    category: ["heal", "utility"],
+    tags: ["heal", "buff"],
+    timelineTags: ["heal", "buff"],
+
+    type: "player",
+    target: "self",
+    origin: "self",
+    shape: "single",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+            { minLevel: 56, value: 120 },
+            { minLevel: 88, value: 90 }
+        ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 56, value: 30 }
+    ],
+
+    effect: [
+        {
+            minLevel: 56,
+            value: "効果時間中1回、対象の回復魔法の回復量を50%上昇"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+         "対象:[ディアグノシス]/[プログノシス]/[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]/[プネウマ]",
+         "回復アビリティには効果は乗らない"
+    ],
+
+    icon: "icons/SGE/Zoe.png"
+},
+{
+    id: "sge_pepsis",
+    name: "ペプシス",
+    minLv: 58,
+    group: "pepsis",
+
+    category: ["heal", "utility"],
+    tags: ["heal", "barrier", "party"],
+    timelineTags: ["heal"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 20,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 30,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        {
+            minLevel: 58,
+            value: "自身が対象に付与したエウクラシア系バリアを解除してHP回復\nエウクラシア・ディアグノシス中: 回復力450\nエウクラシア・プログノシス中: 回復力350"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "対象に自身が付与した[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]がない場合は効果なし",
+        "他者が付与したバリアは対象外"
+    ],
+
+    icon: "icons/SGE/Pepsis.png"
+},
+    {
+        id: "sge_physis_ii",
+        name: "ピュシスII",
+        minLv: 60,
+        group: "physis",
+
+        category: "heal",
+        tags: ["heal", "hot", "party", "buff"],
+        timelineTags: ["heal", "buff"],
+
+        type: "player",
+        target: "party",
+        origin: "self",
+        shape: "circle",
+        range: 0,
+        radius: 15,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 60,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 60, label: "継続回復効果", value: 15 },
+            { minLevel: 60, label: "HP回復効果上昇", value: 10 },
+            { minLevel: 98, label: "HP回復効果上昇", value: 15 }
+        ],
+
+        effect: [
+            { minLevel: 60, value: "範囲内のPTMにHoT付与 回復力:130\n対象が受けるHP回復効果を10%上昇" }
+        ],
+
+        requirements: [],
+        notes: [],
+
+        icon: "icons/SGE/Physis_II.png"
+},
+{
+    id: "sge_taurochole",
+    name: "タウロコレ",
+    minLv: 62,
+    group: "taurochole",
+
+    category: ["heal", "mitigation"],
+    tags: ["heal", "mitigation", "resource"],
+    timelineTags: ["heal", "mitigation"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.ADDERSGALL, value: -1 },
+        { resource: RESOURCE.MP, value: +700 }
+    ],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 45,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 62, label: "被ダメージ軽減", value: 15 }
+    ],
+
+    effect: [
+        {
+            minLevel: 62,
+            value: "対象のHP回復 回復力:700\n対象の被ダメージを10%軽減\n自身のMPを回復"
+        }
+    ],
+
+    requirements: [
+        { type: "resource", resource: RESOURCE.ADDERSGALL, min: 1 }
+    ],
+
+    notes: [
+         "自身またはPTMひとりを対象にできる",
+        "[ケーラコレ]の軽減効果は同時に付与されない"
+    ],
+
+    icon: "icons/SGE/Taurochole.png"
+},
+{
+    id: "sge_haima",
+    name: "ハイマ",
+    minLv: 70,
+    group: "haima",
+
+    category: ["mitigation", "heal"],
+    tags: ["mitigation", "heal", "barrier"],
+    timelineTags: ["mitigation", "heal", "barrier"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 70, label: "ハイマ/ハイマの印", value: 15 }
+    ],
+
+    effect: [
+        {
+            minLevel: 70,
+            value: "対象にバリア付与 バリア量:回復力300相当\nさらに[ハイマの印]を5スタック付与\nバリアが完全吸収で消滅すると印を1消費してバリアを再付与\n印が残って終了した場合、残スタック数に応じてHP回復"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "終了時回復: 回復力150 × ハイマの印の残スタック数",
+        "自身またはPTMひとりを対象にできる",
+        "学者のバリアと競合しない"
+    ],
+
+    icon: "icons/SGE/Haima.png"
+},
+{
+    id: "sge_rhizomata",
+    name: "リゾーマタ",
+    minLv: 74,
+    group: "rhizomata",
+
+    category: "utility",
+    tags: ["resource"],
+    timelineTags: ["resource"],
+
+    type: "player",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.ADDERSGALL, value: +1 }
+    ],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 90,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        {
+            minLevel: 74,
+            value: "自身に[アダーガル]を付与"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "アダーガル消費アクション用のリソース補充"
+    ],
+
+    icon: "icons/SGE/Rhizomata.png"
+},
+{
+    id: "sge_holos",
+    name: "ホーリズム",
+    minLv: 76,
+    group: "holos",
+
+    category: ["heal", "mitigation"],
+    tags: ["heal", "mitigation", "barrier", "party"],
+    timelineTags: ["heal", "mitigation", "barrier"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 30,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 76, label: "バリア", value: 30 },
+        { minLevel: 76, label: "被ダメージ軽減", value: 20 }
+    ],
+
+    effect: [
+        {
+            minLevel: 76,
+            value: "範囲内のPTMのHP回復 回復力:300\n対象にバリア付与 バリア量:回復量の100%\n対象の被ダメージを10%軽減"
+        }
+    ],
+
+    requirements: [],
+
+    notes: ["学者のバリアと競合しない"],
+
+    icon: "icons/SGE/Holos.png"
+},
+{
+    id: "sge_panhaima",
+    name: "パンハイマ",
+    minLv: 80,
+    group: "panhaima",
+
+    category: ["mitigation", "heal"],
+    tags: ["mitigation", "heal", "barrier", "party"],
+    timelineTags: ["mitigation", "heal", "barrier"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 30,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 80, label: "パンハイマ/パンハイマの印", value: 15 }
+    ],
+
+    effect: [
+        {
+            minLevel: 80,
+            value: "範囲内のPTMにバリア付与 バリア量:回復力200相当\nさらに[パンハイマの印]を5スタック付与\nバリアが完全吸収で消滅すると印を1消費してバリアを再付与\n印が残って終了した場合、残スタック数に応じてHP回復"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "終了時回復: 回復力100 × パンハイマの印の残スタック数",
+        "ハイマとは別スキル。単体強攻撃はハイマ、範囲連続ダメージはパンハイマ"
+    ],
+
+    icon: "icons/SGE/Panhaima.png"
+},
+{
+    id: "sge_krasis",
+    name: "クラーシス",
+    minLv: 86,
+    group: "krasis",
+
+    category: ["heal", "utility"],
+    tags: ["heal", "buff"],
+    timelineTags: ["heal", "buff"],
+
+    type: "player",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 86, value: 10 }
+    ],
+
+    effect: [
+        {
+            minLevel: 86,
+            value: "対象が受けるHP回復効果を20%上昇"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "自身またはPTMひとりを対象にできる",
+        "タンク強攻撃前や、単体回復を厚くしたい場面で使う"
+    ],
+
+    icon: "icons/SGE/Krasis.png"
+},
+{
+    id: "sge_pneuma",
+    name: "プネウマ",
+    minLv: 90,
+    group: "pneuma",
+
+    category: ["heal", "damage"],
+    tags: ["heal", "damage", "party", "magic", "burst"],
+    timelineTags: ["heal", "damage"],
+
+    type: "player",
+    target: "enemies",
+    origin: "self",
+    shape: "line",
+    range: 25,
+    radius: 25,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -700 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 1.5,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [],
+
+    effect: [
+        {
+            minLevel: 90,
+            value: "対象に向かって前方直線範囲魔法攻撃 威力:380\n2体目以降の威力は40%減少\n自身と周囲20m以内のPTMのHP回復 回復力:600\nカルディア対象のHP回復 回復力:170"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "固有リキャストを持つ魔法",
+        "[ゾーエ]対象スキル。PTMの大回復の切り札になりえる",
+        "回復範囲は自身中心20m"
+    ],
+
+    icon: "icons/SGE/Pneuma.png"
+},
+{
+    id: "sge_eukrasian_prognosis_ii",
+    name: "エウクラシア・プログノシスII",
+    minLv: 96,
+    group: "eukrasian_prognosis",
+
+    category: ["heal", "mitigation"],
+    tags: ["heal", "barrier", "party", "magic"],
+    timelineTags: ["heal", "barrier"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 20,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+
+    skillType: "spell",
+    charges: null,
+    castTime: null,
+    recast: 1.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 96, value: 30 }
+    ],
+
+    effect: [
+        {
+            minLevel: 96,
+            value: "範囲内のPTMのHP回復+バリア付与\n回復力:100 バリア:回復量の360%"
+        }
+    ],
+
+    requirements: [
+        { type: "buff", buff: RESOURCE.EUKRASIA }
+    ],
+
+    notes: [
+        "学者の[鼓舞]効果と同時に付与されない",
+        "自身に付与したバリアが完全に吸収されると[アダースティング]付与",
+    ],
+
+    icon: "icons/SGE/Eukrasian_Prognosis_II.png"
+},
+{
+    id: "sge_philosophia",
+    name: "フィロソフィア",
+    minLv: 100,
+    group: "philosophia",
+
+    category: ["heal", "buff"],
+    tags: ["heal", "buff", "party"],
+    timelineTags: ["heal", "buff"],
+
+    type: "player",
+    target: "party",
+    origin: "self",
+    shape: "circle",
+    range: 0,
+    radius: 30,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 180,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 100, label: "回復魔法効果上昇", value: 20 },
+        { minLevel: 100, label: "エウダイモニア", value: 20 }
+    ],
+
+    effect: [
+        {
+            minLevel: 100,
+            value: "自身の回復魔法の回復量を20%上昇\n自身と周囲のPTMに[エウダイモニア]を付与\n効果中に魔法を命中させると、エウダイモニア対象を回復 回復力:150"
+        }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "回復魔法強化+攻撃魔法連動回復の強化型全体カルディア付与のイメージ",
+        "回復アビリティではなく、[回復魔法]に効果が乗る",
+        "エウダイモニア中は魔法命中でPTMを追加回復"
+    ],
+
+    icon: "icons/SGE/Philosophia.png"
+},
+// ロールアクション
+{
+    id: "sge_repose",
+    name: "リポーズ",
+    minLv: 8,
+    group: "repose",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemy",
+    origin: "target",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -600 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 8, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 8, value: "対象に睡眠を付与" }
+    ],
+
+    requirements: [],
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Repose.png"
+},
+{
+    id: "sge_esuna",
+    name: "エスナ",
+    minLv: 10,
+    group: "esuna",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "singleAlly",
+    origin: "self",
+    shape: "single",
+    range: 30,
+    radius: 0,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -400 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 1,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [],
+
+    effect: [
+        { minLevel: 10, value: "対象にかかった一部の弱体効果を1つ解除" }
+    ],
+
+    requirements: [],
+    notes: [
+        "白線付きデバフが解除対象"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Esuna.png"
+},
+{
+    id: "sge_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+        "リキャスト毎に使うことを推奨"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Lucid_Dreaming.png"
+},
+{
+    id: "sge_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "基本は蘇生魔法とセットで使うことが多い",
+        "絶等の高難易度の場合、回復魔法や攻撃魔法に使うこともある",
+    ],
+
+    icon: "icons/RoleAction/HEALER/Swiftcast.png"
+},
+{
+    id: "sge_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/HEALER/Surecast.png"
+},
+]; 
 
 // ============================
 // モンクスキルデータ
@@ -1768,7 +3820,7 @@ const SHAPE_LABEL = {
         tags: ["heal", "self", "role"],
         timelineTags: ["heal"],
 
-        type: "player",
+        type: "role",
         target: "self",
         origin: "self",
         shape: "single",
@@ -1805,7 +3857,7 @@ const SHAPE_LABEL = {
         tags: ["heal", "self", "role"],
         timelineTags: ["heal"],
 
-        type: "player",
+        type: "role",
         target: "self",
         origin: "self",
         shape: "single",
@@ -1841,7 +3893,7 @@ const SHAPE_LABEL = {
         tags:["mitigation","debuff","role"],
         timelineTags: ["mitigation"],
 
-        type: "player",
+        type: "role",
         target: "enemy",
         origin: "self",
         shape: "single",
@@ -1886,7 +3938,7 @@ const SHAPE_LABEL = {
         tags: ["heal", "self", "role"],
         timelineTags: ["heal"],
 
-        type: "player",
+        type: "role",
         target: "self",
         origin: "self",
         shape: "single",
@@ -1923,7 +3975,7 @@ const SHAPE_LABEL = {
         tags: ["heal", "self", "role"],
         timelineTags: ["heal"],
 
-        type: "player",
+        type: "role",
         target: "self",
         origin: "self",
         shape: "single",
@@ -1959,7 +4011,7 @@ const SHAPE_LABEL = {
         tags:["mitigation","debuff","role"],
         timelineTags: ["mitigation"],
 
-        type: "player",
+        type: "role",
         target: "enemy",
         origin: "self",
         shape: "single",
@@ -1994,118 +4046,6 @@ const SHAPE_LABEL = {
 // 竜騎士スキルデータ
 // ============================
     const DRG_SKILLS = [
-    {
-        id: "drg_second_wind",
-       name: "内丹",
-        minLv: 8,
-        group: "second_wind",
-
-        category: "heal",
-        tags: ["heal", "self", "role"],
-        timelineTags: ["heal"],
-
-        type: "player",
-        target: "self",
-        origin: "self",
-        shape: "single",
-        range: 0,
-        radius: 0,
-
-        resourceChange: [],
-        skillType: "ability",
-        charges: null,
-        castTime: null,
-        recast: 60,
-        recastType: "ogcd",
-
-        duration: [],
-
-        effect: [
-            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-
-        icon: "icons/RoleAction/MELEE/Second_Wind.png"
-    },
-    {
-        id: "drg_bloodbath",
-        name: "ブラッドバス",
-        minLv: 12,
-        group: "bloodbath",
-
-        category: "heal",
-        tags: ["heal", "self", "role"],
-        timelineTags: ["heal"],
-
-        type: "player",
-        target: "self",
-        origin: "self",
-        shape: "single",
-        range: 0,
-        radius: 0,
-
-        resourceChange: [],
-        skillType: "ability",
-        charges: null,
-        castTime: null,
-        recast: 90,
-        recastType: "ogcd",
-
-        duration: [],
-
-        effect: [
-            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-
-        icon: "icons/RoleAction/MELEE/Bloodbath.png"
-    },
-    {
-        id: "drg_feint",
-        name: "牽制",
-        minLv: 22,
-        group: "feint",
-
-        category: "mitigation",
-        tags:["mitigation","debuff","role"],
-        timelineTags: ["mitigation"],
-
-        type: "player",
-        target: "enemy",
-        origin: "self",
-        shape: "single",
-        range: 10,
-        radius: 0,
-
-        resourceChange: [],
-        skillType:"ability",
-        charges: null,
-        castTime: null,
-        recast: 90,
-        recastType: "ogcd",
-
-        duration: [
-            { minLevel: 22, value: 10 },
-            { minLevel: 98, value: 15 }
-        ],
-
-        effect: [
-            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-
-        icon: "icons/RoleAction/MELEE/Feint.png"
-    }, 
     {
         id: "drg_battle_litany",
         name: "バトルリタニー",
@@ -2145,6 +4085,118 @@ const SHAPE_LABEL = {
 
         icon: "icons/DRG/Battle_Litany.png"
     }, 
+    {
+        id: "drg_second_wind",
+       name: "内丹",
+        minLv: 8,
+        group: "second_wind",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "role",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 60,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "drg_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "role",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    },
+    {
+        id: "drg_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "role",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
+    }, 
     ]; 
 
 // ============================
@@ -2161,7 +4213,7 @@ const SHAPE_LABEL = {
         tags: ["heal", "self", "role"],
         timelineTags: ["heal"],
 
-        type: "player",
+        type: "role",
         target: "self",
         origin: "self",
         shape: "single",
@@ -2198,7 +4250,7 @@ const SHAPE_LABEL = {
         tags: ["heal", "self", "role"],
         timelineTags: ["heal"],
 
-        type: "player",
+        type: "role",
         target: "self",
         origin: "self",
         shape: "single",
@@ -2234,7 +4286,7 @@ const SHAPE_LABEL = {
         tags:["mitigation","debuff","role"],
         timelineTags: ["mitigation"],
 
-        type: "player",
+        type: "role",
         target: "enemy",
         origin: "self",
         shape: "single",
@@ -2270,79 +4322,6 @@ const SHAPE_LABEL = {
 // 忍者スキルデータ
 // ============================
     const NIN_SKILLS = [
-    {
-        id: "nin_second_wind",
-        name: "内丹",
-        minLv: 8,
-        group: "second_wind",
-
-        category: "heal",
-        tags: ["heal", "self", "role"],
-        timelineTags: ["heal"],
-
-        type: "player",
-        target: "self",
-        origin: "self",
-        shape: "single",
-        range: 0,
-        radius: 0,
-
-        resourceChange: [],
-        skillType: "ability",
-        charges: null,
-        castTime: null,
-        recast: 60,
-        recastType: "ogcd",
-
-        duration: [],
-
-        effect: [
-            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
-            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-
-        icon: "icons/RoleAction/MELEE/Second_Wind.png"
-    },
-    {
-        id: "nin_bloodbath",
-        name: "ブラッドバス",
-        minLv: 12,
-        group: "bloodbath",
-
-        category: "heal",
-        tags: ["heal", "self", "role"],
-        timelineTags: ["heal"],
-
-        type: "player",
-        target: "self",
-        origin: "self",
-        shape: "single",
-        range: 0,
-        radius: 0,
-
-        resourceChange: [],
-        skillType: "ability",
-        charges: null,
-        castTime: null,
-        recast: 90,
-        recastType: "ogcd",
-
-        duration: [],
-
-        effect: [
-            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-
-        icon: "icons/RoleAction/MELEE/Bloodbath.png"
-    },
     {
         id: "nin_mug",
         name: "ぶんどる",
@@ -2384,45 +4363,6 @@ const SHAPE_LABEL = {
         icon: "icons/NIN/Mug.png"
     }, 
     {
-        id: "nin_feint",
-        name: "牽制",
-        minLv: 22,
-        group: "feint",
-
-        category: "mitigation",
-        tags:["mitigation","debuff","role"],
-        timelineTags: ["mitigation"],
-
-        type: "player",
-        target: "enemy",
-        origin: "self",
-        shape: "single",
-        range: 10,
-        radius: 0,
-
-        resourceChange: [],
-        skillType:"ability",
-        charges: null,
-        castTime: null,
-        recast: 90,
-        recastType: "ogcd",
-
-        duration: [
-            { minLevel: 22, value: 10 },
-            { minLevel: 98, value: 15 }
-        ],
-
-        effect: [
-            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-
-        icon: "icons/RoleAction/MELEE/Feint.png"
-    },
-    {
         id: "nin_Dokumori",
         name: "毒盛の術",
         minLv: 66,
@@ -2463,7 +4403,119 @@ const SHAPE_LABEL = {
         notes: ["敵撃破時、確率で追加ドロップ効果あり"],
 
         icon: "icons/NIN/Dokumori.png"
-    },        
+    },
+    {
+        id: "nin_second_wind",
+        name: "内丹",
+        minLv: 8,
+        group: "second_wind",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "role",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 60,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 8, value:"自身のHPを回復する 回復力:500"},
+            {minLevel: 94, value:"自身のHPを回復する 回復力:800"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Second_Wind.png"
+    },
+    {
+        id: "nin_bloodbath",
+        name: "ブラッドバス",
+        minLv: 12,
+        group: "bloodbath",
+
+        category: "heal",
+        tags: ["heal", "self", "role"],
+        timelineTags: ["heal"],
+
+        type: "role",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [],
+
+        effect: [
+            {minLevel: 12, value:"効果時間中、自身の[物理攻撃]に与えたダメージの一部をHPとして吸収する効果を付与"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Bloodbath.png"
+    },    
+    {
+        id: "nin_feint",
+        name: "牽制",
+        minLv: 22,
+        group: "feint",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "role",
+        target: "enemy",
+        origin: "self",
+        shape: "single",
+        range: 10,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 22, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 22 , value:"対象の与ダメージ減少\n[物理]10% [魔法]5%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/RoleAction/MELEE/Feint.png"
+    },    
     ];
 
 // ============================
@@ -3215,6 +5267,45 @@ const SHAPE_LABEL = {
 // ============================
     const BLM_SKILLS = [
     {
+        id: "blm_manaward",
+        name: "マバリア",
+        minLv: 30,
+        group: "manaward",
+
+        category: "mitigation",
+        tags: ["mitigation", "barrier"],
+        timelineTags: ["mitigation","barrier"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "single",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [],
+        skillType: "ability",
+        charges: null,
+        castTime: null,
+        recast: 120,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 30, value: 20 },
+        ],
+
+        effect: [
+            {minLevel: 30 , value:"自身に[最大HPの30%分]を無効化するバリアを張る"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+
+        icon: "icons/BLM/Manaward.png"
+    },
+    // ロールアクション
+    {
         id: "blm_addle",
         name: "アドル",
         minLv: 8,
@@ -3254,44 +5345,170 @@ const SHAPE_LABEL = {
         icon: "icons/RoleAction/CASTER/Addle.png"
     },
     {
-        id: "blm_manaward",
-        name: "マバリア",
-        minLv: 30,
-        group: "manaward",
+    id: "blm_sleep",
+    name: "スリプル",
+    minLv: 10,
+    group: "sleep",
 
-        category: "mitigation",
-        tags: ["mitigation", "barrier"],
-        timelineTags: ["mitigation","barrier"],
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
 
-        type: "player",
-        target: "self",
-        origin: "self",
-        shape: "single",
-        range: 0,
-        radius: 0,
+    type: "role",
+    target: "enemies",
+    origin: "target",
+    shape: "circle",
+    range: 30,
+    radius: 5,
 
-        resourceChange: [],
-        skillType: "ability",
-        charges: null,
-        castTime: null,
-        recast: 120,
-        recastType: "ogcd",
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
 
-        duration: [
-            { minLevel: 30, value: 20 },
-        ],
+    duration: [
+        { minLevel: 10, value: 30 }
+    ],
 
-        effect: [
-            {minLevel: 30 , value:"自身に[最大HPの30%分]を無効化するバリアを張る"}
-        ],
+    effect: [
+        { minLevel: 10, value: "対象とその周囲の敵に睡眠を付与" }
+    ],
 
-        requirements: [],
+    requirements: [],
 
-        notes: [],
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
 
-        icon: "icons/BLM/Manaward.png"
-    },            
+    icon: "icons/ROLE/Sleep.png"
+},
+    {
+    id: "blm_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
 
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+        "AF中は効果無効"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Lucid_Dreaming.png"
+},
+    {
+    id: "blm_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "三連魔効果中は三連魔が優先される"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Swiftcast.png"
+},
+{
+    id: "blm_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Surecast.png"
+},            
     ]; 
 
 
@@ -3381,45 +5598,6 @@ const SHAPE_LABEL = {
 
         icon: "icons/SMN/Physick.png"
     },
-     {
-        id: "smn_addle",
-        name: "アドル",
-        minLv: 8,
-        group: "addle",
-
-        category: "mitigation",
-        tags:["mitigation","debuff","role"],
-        timelineTags: ["mitigation"],
-
-        type: "player",
-        target: "enemy",
-        origin: "self",
-        shape: "single",
-        range: 25,
-        radius: 0,
-
-        resourceChange: [],
-        skillType:"ability",
-        charges: null,
-        castTime: null,
-        recast: 90,
-        recastType: "ogcd",
-
-        duration: [
-            { minLevel: 8, value: 10 },
-            { minLevel: 98, value: 15 }
-        ],
-
-        effect: [
-            {minLevel: 8 , value:"対象の与ダメージ減少\n[物理]5% [魔法]10%"}
-        ],
-
-        requirements: [],
-
-        notes: [],
-        
-        icon: "icons/RoleAction/CASTER/Addle.png"
-    }, 
     {
         id: "smn_resurrection",
         name: "リザレク",
@@ -3616,13 +5794,9 @@ const SHAPE_LABEL = {
 
         icon: "icons/SMN/Lux_Solaris.png"
     },
-    ]; 
-
-// ============================
-// 赤魔道士スキルデータ
-// ============================
-    const RDM_SKILLS = [
-    {
+    // ロールアクション
+        {
+        id: "smn_addle",
         name: "アドル",
         minLv: 8,
         group: "addle",
@@ -3655,11 +5829,181 @@ const SHAPE_LABEL = {
         ],
 
         requirements: [],
-        
+
         notes: [],
         
         icon: "icons/RoleAction/CASTER/Addle.png"
-    }, 
+    },
+    {
+    id: "smn_sleep",
+    name: "スリプル",
+    minLv: 10,
+    group: "sleep",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemies",
+    origin: "target",
+    shape: "circle",
+    range: 30,
+    radius: 5,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 10, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 10, value: "対象とその周囲の敵に睡眠を付与" }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/ROLE/Sleep.png"
+},
+    {
+    id: "smn_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+    ],
+
+    icon: "icons/RoleAction/CASTER/Lucid_Dreaming.png"
+},
+    {
+    id: "smn_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "攻撃以外にも蘇生に使うこともある"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Swiftcast.png"
+},
+{
+    id: "smn_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Surecast.png"
+},  
+    ]; 
+
+// ============================
+// 赤魔道士スキルデータ
+// ============================
+    const RDM_SKILLS = [
     {
         id: "rdm_varcure",
         name: "ヴァルケアル",
@@ -3813,16 +6157,10 @@ const SHAPE_LABEL = {
         notes: [],
 
         icon: "icons/RDM/Magick_Barrier.png"
-    },     
-    ]; 
-
-
-// ============================
-// ピクトマンサースキルデータ
-// ============================
-    const PCT_SKILLS = [
+    },
+    // ロールアクション
     {
-        id: "pct_addle",
+        id: "rdm_addle",
         name: "アドル",
         minLv: 8,
         group: "addle",
@@ -3859,7 +6197,179 @@ const SHAPE_LABEL = {
         notes: [],
         
         icon: "icons/RoleAction/CASTER/Addle.png"
-    }, 
+    },
+    {
+    id: "rdm_sleep",
+    name: "スリプル",
+    minLv: 10,
+    group: "sleep",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemies",
+    origin: "target",
+    shape: "circle",
+    range: 30,
+    radius: 5,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 10, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 10, value: "対象とその周囲の敵に睡眠を付与" }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/ROLE/Sleep.png"
+},
+    {
+    id: "rdm_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+    ],
+
+    icon: "icons/RoleAction/CASTER/Lucid_Dreaming.png"
+},
+    {
+    id: "rdm_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "攻撃以外にも蘇生に使うこともある",
+        "連続魔がある場合連続魔が先に消費される"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Swiftcast.png"
+},
+{
+    id: "rdm_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Surecast.png"
+},      
+    ]; 
+
+
+// ============================
+// ピクトマンサースキルデータ
+// ============================
+    const PCT_SKILLS = [
     {
         id: "pct_tempera_coat",
         name: "テンペラコート",
@@ -3983,7 +6493,211 @@ const SHAPE_LABEL = {
         notes: ["自分に付与されたバリアが割れると[テンペラコート]リキャスト30秒短縮"],
         
         icon: "icons/PCT/Tempera_Grassa.png"
-    },                      
+    }, 
+    // ロールアクション
+        {
+        id: "pct_addle",
+        name: "アドル",
+        minLv: 8,
+        group: "addle",
+
+        category: "mitigation",
+        tags:["mitigation","debuff","role"],
+        timelineTags: ["mitigation"],
+
+        type: "player",
+        target: "enemy",
+        origin: "target",
+        shape: "single",
+        range: 25,
+        radius: 0,
+
+        resourceChange: [],
+        skillType:"ability",
+        charges: null,
+        castTime: null,
+        recast: 90,
+        recastType: "ogcd",
+
+        duration: [
+            { minLevel: 8, value: 10 },
+            { minLevel: 98, value: 15 }
+        ],
+
+        effect: [
+            {minLevel: 8 , value:"対象の与ダメージ減少\n[物理]5% [魔法]10%"}
+        ],
+
+        requirements: [],
+
+        notes: [],
+        
+        icon: "icons/RoleAction/CASTER/Addle.png"
+    },
+    {
+    id: "pct_sleep",
+    name: "スリプル",
+    minLv: 10,
+    group: "sleep",
+
+    category: "utility",
+    tags: ["debuff", "magic"],
+    timelineTags: ["debuff"],
+
+    type: "role",
+    target: "enemies",
+    origin: "target",
+    shape: "circle",
+    range: 30,
+    radius: 5,
+
+    resourceChange: [
+        { resource: RESOURCE.MP, value: -800 }
+    ],
+    skillType: "spell",
+    charges: null,
+    castTime: 2.5,
+    recast: 2.5,
+    recastType: "gcd",
+
+    duration: [
+        { minLevel: 10, value: 30 }
+    ],
+
+    effect: [
+        { minLevel: 10, value: "対象とその周囲の敵に睡眠を付与" }
+    ],
+
+    requirements: [],
+
+    notes: [
+        "実行後にオートアタックを停止する",
+        "特定の敵の詠唱を止めるために使うことがある"
+    ],
+
+    icon: "icons/ROLE/Sleep.png"
+},
+    {
+    id: "pct_lucid_dreaming",
+    name: "ルーシッドドリーム",
+    minLv: 14,
+    group: "lucid_dreaming",
+
+    category: "utility",
+    tags: ["resource", "mp"],
+    timelineTags: ["resource"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 60,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 14, value: 21 }
+    ],
+
+    effect: [
+        { minLevel: 14, value: "自身のMPを継続回復\n効果量:55" }
+    ],
+
+    requirements: [],
+    notes: [
+        "MP管理用ロールアクション",
+    ],
+
+    icon: "icons/RoleAction/CASTER/Lucid_Dreaming.png"
+},
+    {
+    id: "pct_swiftcast",
+    name: "迅速魔",
+    minLv: 18,
+    group: "swiftcast",
+
+    category: "utility",
+    tags: ["buff", "magic", "raise"],
+    timelineTags: ["buff", "raise"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: [
+        { minLevel: 18, value: 60 },
+        { minLevel: 94, value: 40 }
+    ],
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 18, value: 10 }
+    ],
+
+    effect: [
+        { minLevel: 18, value: "効果時間中に実行する1回の魔法について、詠唱時間なしで詠唱可能" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ピクト系の技に使うとGCDが回るのが遅い"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Swiftcast.png"
+},
+{
+    id: "pct_surecast",
+    name: "堅実魔",
+    minLv: 44,
+    group: "surecast",
+
+    category: "utility",
+    tags: ["buff"],
+    timelineTags: ["buff"],
+
+    type: "role",
+    target: "self",
+    origin: "self",
+    shape: "self",
+    range: 0,
+    radius: 0,
+
+    resourceChange: [],
+    skillType: "ability",
+    charges: null,
+    castTime: null,
+    recast: 120,
+    recastType: "ogcd",
+
+    duration: [
+        { minLevel: 44, value: 6 }
+    ],
+
+    effect: [
+        { minLevel: 44, value: "一定時間、詠唱妨害を受けなくなる\n一部を除くノックバックと引き寄せを無効化" }
+    ],
+
+    requirements: [],
+    notes: [
+        "ノックバック無効用に使うことがほとんど",
+        "コールでは「アムレン」といわれることが多い"
+    ],
+
+    icon: "icons/RoleAction/CASTER/Surecast.png"
+},                      
     ]; 
 
 //============
@@ -4203,7 +6917,9 @@ const JOB_SKILLS = {
 
             //リソース系
             if (Array.isArray(skill.resourceChange) && skill.resourceChange.length > 0) {
-                const resourceTexts = skill.resourceChange.map((r) => {
+                const resourceTexts = skill.resourceChange
+                    .filter((r) => r.minLevel == null || currentLv >= r.minLevel)
+                    .map((r) => {
 
                     const key = r.resource;
                     const name = RESOURCE_LABEL[key] ?? key;
@@ -4219,8 +6935,9 @@ const JOB_SKILLS = {
                     return `${name}：${Math.abs(amount)}消費`;  //消費
                     }
                 });
-
-                resourceEl.textContent = resourceTexts.join(" / ");
+                if (resourceTexts.length > 0) {
+                    resourceEl.textContent = resourceTexts.join(" / ");
+                }
             }
 
             const icon = document.createElement("img");
@@ -4318,22 +7035,31 @@ const JOB_SKILLS = {
         }
     }
     //notes表示
+    // notes表示
     if (Array.isArray(skill.notes) && skill.notes.length > 0) {
         const noteEl = document.createElement("div");
         noteEl.className = "skill-notes";
 
         skill.notes.forEach(note => {
-            const line = document.createElement("div");
-            line.textContent = `⚠️[${note}]`;
-            noteEl.appendChild(line);
-        })
-        
-        card.appendChild(noteEl);
-    }
+            let noteText = "";
 
-            skillList.appendChild(card);
-    });
-}
+            if (typeof note === "string") {
+                noteText = note;
+            } else if (typeof note === "object" && currentLv >= note.minLevel) {
+                noteText = note.value;
+            }
+
+            if (noteText) {
+                const line = document.createElement("div");
+                line.textContent = `⚠️[${noteText}]`;
+                noteEl.appendChild(line);
+            }
+        });
+
+        if (noteEl.childNodes.length > 0) {
+            card.appendChild(noteEl);
+        }
+    }
     
 
 // ============================
