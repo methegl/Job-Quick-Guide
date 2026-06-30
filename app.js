@@ -464,7 +464,7 @@ const TANK_ROLE_ACTIONS = [
         requirements: [],
 
         notes: [
-            "敵に付与する軽減",
+            "敵に付与する軽減。[効果範囲は[自分中心5m]",
         ],
 
         icon: "icons/ROLE/Reprisal.png"
