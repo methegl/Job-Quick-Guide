@@ -876,7 +876,7 @@ const SHAPE_LABEL = {
             { type: "resource", resource: RESOURCE.AETHERFLOW, min: 1 }
         ],
 
-        note: ["[秘策]対象スキル"],
+        notes: ["[秘策]対象スキル"],
 
         interactionTags: ["recitation"],
 
@@ -1094,8 +1094,11 @@ const SHAPE_LABEL = {
 
         effect: [
             {
-                minLevel: 66,value: "対象のクリティカルヒットを受ける確率10%上昇",
-                minLevel: 92,value: "対象のクリティカルヒットを受ける確率10%上昇\n自身に[埋伏の毒]実行可付与"
+                minLevel: 66,
+                value: "対象のクリティカルヒットを受ける確率10%上昇"},
+            {
+                minLevel: 92,
+                value: "対象のクリティカルヒットを受ける確率10%上昇\n自身に[埋伏の毒]実行可付与"
             }
         ],
 
@@ -2990,7 +2993,7 @@ const SHAPE_LABEL = {
 
         requirements: [],
 
-        note: ["ダンスパートナーと重なって使うと回復力が2倍になる"],
+        notes: ["ダンスパートナーと重なって使うと回復力が2倍になる"],
 
         icon: "icons/DNC/Curing_Waltz.png"
     },
@@ -3153,7 +3156,7 @@ const SHAPE_LABEL = {
             }
         ],
 
-        reqirements: [],
+        requirements: [],
 
         notes: [],
 
@@ -4068,19 +4071,21 @@ const JOB_SKILLS = {
 
         if (sortMode === "recast") {
             displaySkills.sort((a,b) => {
-            const ra = a.recast ?? null;
-            const rb = b.recast ?? null;
+            const currentLv = Number(lv.value);
 
-            if (ra == null && rb == null) {
-                return Number(a.minLv ?? a.minLevel ?? 0) -Number(b.minLv ?? b.minLevel ?? 0);
-            }
-            if (ra == null) return 1;
-            if (rb == null) return -1;
+                const ra = pickByLevel(a.recast, currentLv);
+                const rb = pickByLevel(b.recast, currentLv);
 
-            if (ra !== rb) return ra - rb;
+                if (ra == null && rb == null) {
+                    return Number(a.minLv ?? a.minLevel ?? 0) -Number(b.minLv ?? b.minLevel ?? 0);
+                }
+                if (ra == null) return 1;
+                if (rb == null) return -1;
 
-            return (Number(a.minLv ?? a.minLevel ?? 0)) - (Number(b.minLv ?? b.minLevel ?? 0))
-        });
+                if (ra !== rb) return ra - rb;
+
+                return (Number(a.minLv ?? a.minLevel ?? 0)) - (Number(b.minLv ?? b.minLevel ?? 0))
+            });
         }
 
         

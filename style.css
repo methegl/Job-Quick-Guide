@@ -20,8 +20,8 @@
     --tag-text: #4a3a2a;
 
     --icon-bg: #f7eed9;
-    --igon-border: #cdb990;
-    --bodey-text: #5a4a36; /* 本文用 */
+    --icon-border: #cdb990;
+    --body-text: #5a4a36; /* 本文用 */
 }
 
 /* ダークモード */
@@ -46,8 +46,8 @@ body.dark {
     --tag-text: #dddddd;
 
     --icon-bg: #1f1f1f;
-    --igon-border: #4a4a4a;
-    --bodey-text: #d6d6d6; /* 本文用 */
+    --icon-border: #4a4a4a;
+    --body-text: #d6d6d6; /* 本文用 */
 }
 
 /* テーマトグル */
