@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.771");
+console.log("app.js loaded v0.772");
 
 // ============================
 // DOM取得
@@ -115,8 +115,8 @@ const TAG_LABEL = {
     summon: "召喚",
     enmity: "敵視",
     positionals: "方向指定",
-    self: "自己ヒール",
-    interrupt: "沈黙",
+    self: "自分対象",
+    interrupt: "詠唱中断",
 };
 
 //条件データ
