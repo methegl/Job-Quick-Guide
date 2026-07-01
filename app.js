@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.7");
+console.log("app.js loaded v0.73");
 
 // ============================
 // DOM取得
