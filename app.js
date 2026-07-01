@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.72");
+console.log("app.js loaded v0.73");
 
 // ============================
 // DOM取得
@@ -238,21 +238,7 @@ const SHAPE_LABEL = {
 //type: "role"   // ロールアクション
 //type: "pet"    // 妖精・召喚獣など
 
-// =====================
-// ロールアクション生成 helper
-// =====================
 
-const makeRoleSkill = (jobKey, skill, override = {}) => ({
-    ...skill,
-    ...override,
-
-    id: override.id ?? `${jobKey.toLowerCase()}_${skill.group}`,
-
-    notes: [
-        ...(skill.notes ?? []),
-        ...(override.notes ?? [])
-    ]
-});
 
 // =====================
 // ロールアクション　TANK
