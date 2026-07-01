@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.77");
+console.log("app.js loaded v0.771");
 
 // ============================
 // DOM取得
@@ -113,6 +113,10 @@ const TAG_LABEL = {
     burst: "バースト",
     mp: "MP",
     summon: "召喚",
+    enmity: "敵視",
+    positionals: "方向指定",
+    self: "自己ヒール",
+    interrupt: "沈黙",
 };
 
 //条件データ
@@ -385,7 +389,7 @@ const TANK_ROLE_ACTIONS = [
         group: "interject",
 
         category: "utility",
-        tags: ["debuff"],
+        tags: ["debuff", "interrupt"],
         timelineTags: ["debuff"],
 
         type: "role",
@@ -1067,7 +1071,7 @@ const RANGED_ROLE_ACTIONS = [
     group: "leg_graze",
 
     category: "utility",
-    tags: ["debuff", "slow"],
+    tags: ["debuff"],
     timelineTags: ["debuff"],
 
     type: "role",
@@ -1134,7 +1138,7 @@ const RANGED_ROLE_ACTIONS = [
 
     notes: [
         "自己回復用。被弾後の立て直しや戻し補助に使う",
-        "レンジは離れて被弾することもあるので、自分で戻せるとえらい（でもヒーラーのヒールから漏れないのが一番えらい）"
+        "レンジは離れて被弾することもあるので、自分で戻せるとえらい"
     ],
 
     icon: "icons/RoleAction/RANGED/Second_Wind.png"
