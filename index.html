@@ -3,25 +3,39 @@
     <head>
         <meta charset="utf-8">
          <title>JQG - Job Quick Guide</title>
-        <link rel="stylesheet" href="style.css?v=0755">
+        <link rel="stylesheet" href="style.css?v=077">
         <link rel="icon" type="image/png" href="icons/favicon.png">
     </head>
     <body class="dark">
-        <h1>JQG - Job Quick Guide</h1>
-        <p class="subtitle">FF14 Job Skill Reference</p>
-        <a href="changelog.html">更新履歴</a>
-        <h4>各ジョブのレベル毎に使えるスキル・効果をまとめたジョブガイドです。</h4>
-        <h4>公式ジョブガイドでフォローしきれない部分（シンク時の効果）を見れるようにしています。</h4>
+        <header class="site-header">
+            <div class="header-inner">
+                <div class="site-title-area">
+                    <h1 class="site-title">
+                        JQG - Job Quick Guide
+                        <span class="title-subtitle">FF14 Job Skill Reference</span>
+                    </h1>
+                </div>
 
-        <h5>使い方：ジョブボタンをクリック▶スライダーを動かす</h5>
-        <h5>そのレベルで使える軽減・ヒールスキルが出ます</h5>
-        <h5>🌙と☀️のアイコンでダークモードの切り替えが可能です</h5>
-        <h5>※β版のためスキル情報が不完全な場合があります</h5>
+                <div class="theme-switch">
+                    <span>☀️</span>
+                    <button id="themeToggle" type="button" aria-label="テーマ切り替え"></button>
+                    <span>🌙</span>
+                </div>
+            </div>
+        </header>
 
-        <div class="theme-switch">
-            <span>☀️</span>
-            <button id="themeToggle" type="button" aria-label="テーマ切り替え"></button>
-            <span>🌙</span>
+    <main class="page-container">
+
+        <div class="intro-text">
+            <p>各ジョブのレベル毎に使えるスキル・効果をまとめたジョブガイドです。</p>
+            <p>公式ジョブガイドでフォローしきれない部分、特にシンク時の効果を確認できるようにしています。</p>
+        </div>
+
+        <div class="usage-note">
+            <p><strong>使い方：</strong>ジョブを選んで、絶やIDなどのコンテンツに合わせたレベルを選択してください。</p>
+            <p>そのコンテンツで使えるスキルや、シンク時に変化する効果を確認できます。</p>
+            <p>🌙 / ☀️ のアイコンでダークモードを切り替えられます。</p>
+            <p class="beta-note">※β版のためスキル情報が不完全な場合があります。</p>
         </div>
 
         <!-- ジョブ選択エリア -->
@@ -68,6 +82,10 @@
             </div>
         </div>
 
+        <div class="job-toolbar">
+            <button id="clearJobButton" type="button">選択ジョブをクリア</button>
+        </div>
+
         <!-- 現在選択中ジョブ表示 -->
         <div class="ultimate-buttons">
             <button data-level="70">Lv70 絶バハ・絶テマ</button>
@@ -78,10 +96,37 @@
 
         <div id="statusBar" hidden>
             <strong id="currentJob"></strong>
-            Lv:
-            <span id="lvValue">100</span>
-            <input id="lv" type="range" min="1" max="100" value="100">
 
+            <span class="level-display">
+                シンクLv:
+                <span id="lvValue">100</span>
+            </span>
+
+        <input id="lv" type="hidden" min="1" max="100" value="100">
+
+        <div class="select-wrapper">
+            <select id="expansionSelect">
+                <option value="leveling_arr">新生レベリングID</option>
+                <option value="leveling_hw">蒼天レベリングID</option>
+                <option value="leveling_sb">紅蓮レベリングID</option>
+                <option value="leveling_shb">漆黒レベリングID</option>
+                <option value="leveling_ew">暁月レベリングID</option>
+                <option value="leveling_dt">黄金レベリングID</option>
+
+                <option value="high_50">Lv50ID</option>
+                <option value="high_60">Lv60ID</option>
+                <option value="high_70">Lv70ID</option>
+                <option value="high_80">Lv80ID</option>
+                <option value="high_90">Lv90ID</option>
+                <option value="high_100">Lv100ID</option>
+            </select>
+        </div>
+
+        <div class="select-wrapper">
+            <select id="dungeonSelect"></select>
+        </div>
+
+        <div class="filter-row">
             並び替え:
             <div class="select-wrapper">
             <select id="sortSelect">
@@ -109,11 +154,14 @@
             </select>
             </div>
         </div>
+        </div>
 
         <!-- スキル表示エリア -->
          <div id="skillArea" hidden>
             <div id="skillList" ></div>
          </div>
+
+    </main>
 
         <footer class="alchemy-footer">
         brewed in methegl <span class="alchemy-icon">⚗️</span>
@@ -128,7 +176,7 @@
         炭酸水で開発支援ができるよ<br>
         <br>
             ✦・┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈・✦ <br>
-            JQG v0.75<br>
+            JQG v0.77 ▶<a class="changelog-link" href="changelog.html">更新履歴</a><br>
             Created by Guinness <br>
             <a href="https://marshmallow-qa.com/okdif1k3k9124ee?t=fE1eFA&utm_medium=url_text&utm_source=promotion" target="_blank" rel="noopener noreferrer">
             感想・要望・バグ報告はこちら（マシュマロ）🫧 </a> <br>

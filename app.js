@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.755");
+console.log("app.js loaded v0.77");
 
 // ============================
 // DOM取得
@@ -9,6 +9,9 @@ const statusBar = document.getElementById("statusBar");
 const skillArea = document.getElementById("skillArea");
 const skillList = document.getElementById("skillList");
 const currentJobEl = document.getElementById("currentJob");
+
+const expansionSelect = document.getElementById("expansionSelect");
+const dungeonSelect = document.getElementById("dungeonSelect");
 
 let sortMode = "level";
 const sortSelect = document.getElementById("sortSelect");
@@ -109,6 +112,7 @@ const TAG_LABEL = {
     movement: "移動補助",
     burst: "バースト",
     mp: "MP",
+    summon: "召喚",
 };
 
 //条件データ
@@ -368,7 +372,7 @@ const TANK_ROLE_ACTIONS = [
         requirements: [],
 
         notes: [
-            "タンクスイッチ・ヘイト１位にする場面に使用",
+            "タンクスイッチ・剥がれた敵視を戻す場面に使用",
             "挑発後は追撃で敵視を安定させる"
         ],
 
@@ -448,7 +452,7 @@ const TANK_ROLE_ACTIONS = [
             },
             {
                 minLevel: 98,
-                value: "自身の周囲の敵の与ダメージを10%減少\nLv98以降: 効果時間15秒"
+                value: "自身の周囲の敵の与ダメージを10%減少"
             }
         ],
 
@@ -541,7 +545,7 @@ const TANK_ROLE_ACTIONS = [
         requirements: [],
 
         notes: [
-            "タンクスイッチ後の敵視調整用",
+            "タンクスイッチの敵視調整用",
             "相方タンクに向けて使う。相方タンクの挑発の後に使うと敵視が安定しやすい"
         ],
 
@@ -752,7 +756,7 @@ const HEALER_ROLE_ACTIONS = [
     requirements: [],
     notes: [
         "ノックバック無効用に使うことがほとんど。「アムレン」とコールされることが多い",
-        "ヒーラー・キャスター版のノックバック無効"
+        "無理やり蘇生する時に使うことも稀にある"
     ],
 
     icon: "icons/RoleAction/HEALER/Surecast.png"
@@ -877,7 +881,6 @@ const MELEE_ROLE_ACTIONS = [
     requirements: [],
 
     notes: [
-        "スタンが有効な詠唱・雑魚止め用",
         "タンクのスタンよりも効果時間が短いことに注意！"
     ],
 
@@ -1092,7 +1095,6 @@ const RANGED_ROLE_ACTIONS = [
     requirements: [],
 
     notes: [
-        "敵の移動速度を下げる",
     ],
 
     icon: "icons/RoleAction/RANGED/Leg_Graze.png"
@@ -1132,8 +1134,7 @@ const RANGED_ROLE_ACTIONS = [
 
     notes: [
         "自己回復用。被弾後の立て直しや戻し補助に使う",
-        "レンジは離れて被弾することもあるので、自分で戻せるとえらい",
-        "でもヒーラーのヒールから漏れないのが一番えらい"
+        "レンジは離れて被弾することもあるので、自分で戻せるとえらい（でもヒーラーのヒールから漏れないのが一番えらい）"
     ],
 
     icon: "icons/RoleAction/RANGED/Second_Wind.png"
@@ -1173,7 +1174,6 @@ const RANGED_ROLE_ACTIONS = [
     requirements: [],
 
     notes: [
-        "敵の移動を止める",
     ],
 
     icon: "icons/RoleAction/RANGED/Foot_Graze.png"
@@ -1361,8 +1361,7 @@ const CASTER_ROLE_ACTIONS = [
             "連続魔で動けるタイミングを作りやすいので、軽減を忘れず差し込みたい"
         ],
         PCT: [
-            "ピクトマンサーは火力支援だけでなく、アドルで軽減にも参加できる",
-            "長めの詠唱やピクト系詠唱に気を取られて、軽減を忘れないようにしたい"
+            "ピクトマンサーの長めの詠唱やピクト系詠唱に気を取られて軽減を忘れないようにしたい"
         ]
     },
 
@@ -1408,8 +1407,7 @@ const CASTER_ROLE_ACTIONS = [
     requirements: [],
 
     notes: [
-        "敵を眠らせる範囲魔法。",
-        "ソロ・クエスト・特殊な雑魚処理で刺さることがある"
+        "ソロ・クエスト等特殊な状況で刺さることがある"
     ],
 
     icon: "icons/RoleAction/CASTER/Sleep.png"
@@ -1522,7 +1520,7 @@ const CASTER_ROLE_ACTIONS = [
             "召喚士は蘇生持ちなので、基本は攻撃用に使うが、蘇生用に使う場合もある",
         ],
         RDM: [
-            "赤魔道士は連続魔で蘇生しやすいが、迅速魔があると連続で起こせる",
+            "赤魔道士は連続魔で蘇生しやすいが、迅速魔があると連続で蘇生できる",
             "連続魔バフがある場合は連続魔が優先して消費される"
         ],
         PCT: [
@@ -1572,7 +1570,6 @@ const CASTER_ROLE_ACTIONS = [
 
     notes: [
         "ノックバック無効用に使うことがほとんど。「アムレン」とコールされることが多い",
-        "ヒーラー・キャスター版のノックバック無効"
     ],
 
     icon: "icons/RoleAction/CASTER/Surecast.png"
@@ -1807,7 +1804,9 @@ function makeRoleSkill(job, skill) {
            { type:"buff", names: [RESOURCE.FAIRY, RESOURCE.SERAPH]}
         ],
 
-        notes: ["[セラフィム召喚中]光輝の囁きに変化する ※効果は同じ"],
+        notes: [
+             { minLevel: 80, value: "[セラフィム召喚中]光輝の囁きに変化する ※効果は同じ" }
+        ],
 
         icon: "icons/SCH/Whispering_Dawn.png"
     },
@@ -1815,6 +1814,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_adloquium",
         name: "鼓舞激励の策",
         minLv: 30,
+        learn: {
+           method: "jobQuest"
+        },
         group: "adloquium",
 
         category: ["heal","mitigation"],
@@ -1850,7 +1852,7 @@ function makeRoleSkill(job, skill) {
 
         notes: [
                 "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
-                "[秘策]対象スキル",
+                { minLevel: 74, value:"[秘策]対象スキル"},
                 "クリティカル時:[激励]付与(バリア量2倍)"],
 
         interactionTags: ["recitation"],
@@ -1861,6 +1863,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_succor",
         name: "士気高揚の策",
         minLv: 35,
+        learn: {
+           method: "jobQuest"
+        },
         group: "succor",
 
         category: ["heal","mitigation"],
@@ -1896,7 +1901,7 @@ function makeRoleSkill(job, skill) {
 
         notes: [
                 "賢者の[エウクラシア・ディアグノシス]/[エウクラシア・プログノシス]と競合",
-                "[秘策]対象スキル",
+                { minLevel: 74, value:"[秘策]対象スキル"}
                 ],
 
         interactionTags: ["recitation"],
@@ -1946,7 +1951,7 @@ function makeRoleSkill(job, skill) {
         ],
 
         notes: [
-                "[セラフィム召喚中]セラフィックイルミネーションに変化する ※効果は同じ",
+                { minLevel: 80, value:"[セラフィム召喚中]セラフィックイルミネーションに変化する ※効果は同じ"},
                 "回復アビリティには効果は乗らない"
                 ],
 
@@ -2000,6 +2005,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_lustrate",
         name: "生命活性法",
         minLv: 45,
+        learn: {
+           method: "jobQuest"
+        },
         group: "lustrate",
 
         category: "heal",
@@ -2043,6 +2051,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_sacred_soil",
         name: "野戦治療の陣",
         minLv: 50,
+        learn: {
+           method: "jobQuest"
+        },
         group: "sacred_soil",
 
         category: ["mitigation", "heal"],
@@ -2086,6 +2097,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_indomitability",
         name: "不撓不屈の策",
         minLv: 52,
+        learn: {
+           method: "jobQuest"
+        },
         group: "indomitability",
 
         category: "heal",
@@ -2121,7 +2135,9 @@ function makeRoleSkill(job, skill) {
             { type: "resource", resource: RESOURCE.AETHERFLOW, min: 1 }
         ],
 
-        notes: ["[秘策]対象スキル"],
+        notes: [
+            { minLevel: 74, value:"[秘策]対象スキル"}
+        ],
 
         interactionTags: ["recitation"],
 
@@ -2131,6 +2147,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_deployment_tactics",
         name: "展開戦術",
         minLv: 56,
+        learn: {
+           method: "jobQuest"
+        },
         group: "deployment_tactics",
 
         category: "utility",
@@ -2173,6 +2192,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_emergency_tactics",
         name: "応急戦術",
         minLv: 58,
+        learn: {
+           method: "jobQuest"
+        },
         group: "emergency",
 
         category: "utility",
@@ -2219,6 +2241,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_dissipation",
         name: "転化",
         minLv: 60,
+        learn: {
+           method: "jobQuest"
+        },
         group: "dissipation",
 
         category: "utility",
@@ -2357,6 +2382,9 @@ function makeRoleSkill(job, skill) {
         id: "sch_aetherpact",
         name: "エーテルパクト",
         minLv: 70,
+        learn: {
+           method: "jobQuest"
+        },
         group: "aetherpact",
 
         category: "heal",
@@ -2393,9 +2421,10 @@ function makeRoleSkill(job, skill) {
             { type: "resource", resource: RESOURCE.FEAAETHER, min: 10 },
         ],
 
-        notes: ["セラフィム召喚中は使用不可",
+        notes: [
                 "フェアリーと対象の距離が30m以上になると効果が一時ストップする",
-                "エーテルパクト中に他のフェアリースキルを発動させようとすると発動までディレイが発生する"
+                "エーテルパクト中に他のフェアリースキルを発動させようとすると発動までディレイが発生する",
+                { minLevel: 80, value: "[セラフィム召喚中]は使用不可"},
         ],
 
         icon: "icons/SCH/Aetherpact.png"
@@ -2481,7 +2510,9 @@ function makeRoleSkill(job, skill) {
             { type: "buff", buff: RESOURCE.FAIRY }
         ],
 
-        notes: ["セラフィム召喚中使用不可"],
+        notes: [
+             { minLevel: 80, value:"[セラフィム召喚中]使用不可"}
+            ],
 
         icon: "icons/SCH/Fey_Blessing.png"
     },
@@ -2865,9 +2896,52 @@ function makeRoleSkill(job, skill) {
             { type: "buff", buff: RESOURCE.FAIRY}
         ],
 
-        notes: ["セラフィム召喚中は[セラフィックベール]に変化する"],
+        notes: [
+             { minLevel: 80, value:"セラフィム召喚中は[セラフィックベール]に変化する"}
+            ],
 
         icon: "icons/SCH/Pet_Actions/Embrace.png"
+    },
+    {
+        id: "sch_summon_eos",
+        name: "サモン・エオス",
+        minLv: 4,
+        group: "summon_eos",
+
+        category: "utility",
+        tags: ["pet","summon"],
+        timelineTags: ["utility"],
+
+        type: "player",
+        target: "self",
+        origin: "self",
+        shape: "self",
+        range: 0,
+        radius: 0,
+
+        resourceChange: [
+            { resource: RESOURCE.MP, value: -200 }
+        ],
+        skillType: "spell",
+        charges: null,
+        castTime: 2.5,
+        recast: 2.5,
+        recastType: "gcd",
+
+        duration: [],
+
+        effect: [
+            { minLevel: 4, value: "フェアリー・エオスを召喚する" }
+        ],
+
+        requirements: [],
+
+        notes: [
+            "学者の回復・補助アクションの一部はフェアリー召喚中に使用可能",
+            "蘇生後・ワイプ後はフェアリーがいないため再召喚必須（※生還バフに注意！）"
+        ],
+
+        icon: "icons/SCH/Summon_Eos.png"
     },
     {
         id: "sch_seraphic_veil",
@@ -2901,7 +2975,7 @@ function makeRoleSkill(job, skill) {
         ],
 
                 requirements: [
-            { type: "buff", buff: RESOURCE.FAIRY}
+            { type: "buff", buff: RESOURCE.SERAPH}
         ],
 
         notes: [],
@@ -3794,6 +3868,9 @@ function makeRoleSkill(job, skill) {
     id: "sge_panhaima",
     name: "パンハイマ",
     minLv: 80,
+    learn: {
+           method: "jobQuest"
+        },
     group: "panhaima",
 
     category: ["mitigation", "heal"],
@@ -3917,7 +3994,7 @@ function makeRoleSkill(job, skill) {
 
     notes: [
         "固有リキャストを持つ魔法",
-        "[ゾーエ]対象スキル。PTMの大回復の切り札になりえる",
+        "[ゾーエ]対象スキル。PTMの大回復を狙える",
         "回復範囲は自身中心20m"
     ],
 
@@ -5619,6 +5696,9 @@ const JOB_SKILLS = {
 
             const titleWrap = document.createElement("div");
 
+            const badgeRow = document.createElement("div");
+            badgeRow.className = "skill-badge-row";
+
             const TYPE_BADGE_LABEL = {
                 role: "ROLE ACTION",
                 pet: "PET ACTION"
@@ -5628,7 +5708,18 @@ const JOB_SKILLS = {
                 const typeBadge = document.createElement("span");
                 typeBadge.className = `type-badge type-badge-${skill.type}`;
                 typeBadge.textContent = TYPE_BADGE_LABEL[skill.type];
-                titleWrap.appendChild(typeBadge);
+                badgeRow.appendChild(typeBadge);
+            }
+
+            if (skill.learn?.method === "jobQuest") {
+                const learnBadge = document.createElement("span");
+                learnBadge.className = "learn-badge learn-badge-jobquest";
+                learnBadge.textContent = "ジョブクエスト";
+                badgeRow.appendChild(learnBadge);
+            }
+
+            if (badgeRow.childNodes.length > 0) {
+                titleWrap.appendChild(badgeRow);
             }
 
             const nameEl = document.createElement("div");
@@ -5750,13 +5841,126 @@ const JOB_SKILLS = {
 
 // renderSkills 終了
 }
-    
 
 // ============================
-// レベルスライダー関連
+// IDプリセット
 // ============================
-lv.addEventListener("input", () => {
-    lvValue.textContent = lv.value;
+const DUNGEONS = {
+    leveling_arr: [
+        { name: "サスタシャ浸食洞", syncLevel: 18 },
+        { name: "タムタラの墓所", syncLevel: 19 },
+        { name: "カッパーベル銅山", syncLevel: 20 },
+        { name: "ハラタリ修練所", syncLevel: 23 },
+        { name: "トトラクの千獄", syncLevel: 27 },
+        { name: "ハウケタ御用邸", syncLevel: 31 },
+        { name: "ブレイフロクスの野営地", syncLevel: 34 },
+        { name: "カルン埋没寺院", syncLevel: 37 },
+        { name: "カッターズクライ", syncLevel: 40 },
+        { name: "ストーンヴィジル", syncLevel: 43 },
+        { name: "ゼーメル要塞", syncLevel: 46 },
+        { name: "オーラムヴェイル", syncLevel: 49 }
+    ],
+
+    leveling_hw: [
+        { name: "ダスクヴィジル", syncLevel: 52 },
+        { name: "ソーム・アル", syncLevel: 54 },
+        { name: "ドラゴンズエアリー", syncLevel: 56 },
+        { name: "イシュガルド教皇庁", syncLevel: 58 },
+        { name: "グブラ幻想図書館", syncLevel: 60 }
+    ],
+
+    leveling_sb: [
+        { name: "セイレーン海", syncLevel: 62 },
+        { name: "紫水宮", syncLevel: 64 },
+        { name: "バルダム覇道", syncLevel: 66 },
+        { name: "ドマ城", syncLevel: 68 },
+        { name: "カストルム・アバニア", syncLevel: 70 }
+    ],
+
+    leveling_shb: [
+        { name: "ホルミンスター", syncLevel: 72 },
+        { name: "ドォーヌ・メグ", syncLevel: 74 },
+        { name: "キタンナ神影洞", syncLevel: 76 },
+        { name: "マリカの大井戸", syncLevel: 78 },
+        { name: "グルグ火山", syncLevel: 80 }
+    ],
+
+    leveling_ew: [
+        { name: "ゾットの塔", syncLevel: 82 },
+        { name: "バブイルの塔", syncLevel: 84 },
+        { name: "ヴァナスパティ", syncLevel: 86 },
+        { name: "ヒュペルボレア造物院", syncLevel: 88 },
+        { name: "アイティオン星晶鏡", syncLevel: 90 }
+    ],
+
+    leveling_dt: [
+        { name: "イフイカ・トゥム", syncLevel: 92 },
+        { name: "ウォーコー・ゾーモー", syncLevel: 94 },
+        { name: "天深きセノーテ", syncLevel: 96 },
+        { name: "ヴァンガード", syncLevel: 98 },
+        { name: "オリジェニクス", syncLevel: 100 }
+    ],
+
+    high_50: [
+        { name: "Lv50 ID", syncLevel: 50 }
+    ],
+
+    high_60: [
+        { name: "Lv60 ID", syncLevel: 60 }
+    ],
+
+    high_70: [
+        { name: "Lv70 ID", syncLevel: 70 }
+    ],
+
+    high_80: [
+        { name: "Lv80 ID", syncLevel: 80 }
+    ],
+
+    high_90: [
+        { name: "Lv90 ID", syncLevel: 90 }
+    ],
+
+    high_100: [
+        { name: "Lv100 ID", syncLevel: 100 }
+    ]
+};
+
+function clearUltimateActive() {
+    document.querySelectorAll(".ultimate-buttons button").forEach(button => {
+        button.classList.remove("active");
+    });
+}
+
+function setIdSelectActive(isActive) {
+    const dungeonWrapper = dungeonSelect?.closest(".select-wrapper");
+    const expansionWrapper = expansionSelect?.closest(".select-wrapper");
+
+    if (!dungeonWrapper || !expansionWrapper) return;
+
+    dungeonWrapper.classList.toggle("active-id", isActive);
+    expansionWrapper.classList.toggle("active-id", isActive);
+}
+
+function resetDungeonSelectPlaceholder() {
+    if (!expansionSelect || !dungeonSelect) return;
+
+    const expansion = expansionSelect.value;
+    const isHighLevel = expansion.startsWith("high_");
+
+    // Lv50ID/Lv60IDみたいなハイレベルIDは2個目selectが隠れてるので何もしない
+    if (isHighLevel) return;
+
+    // 「IDを選択」に戻す
+    dungeonSelect.value = "";
+
+    // ID側の光を消す
+    setIdSelectActive(false);
+}
+
+function setDisplayLevel(level) {
+    lv.value = level;
+    lvValue.textContent = level;
 
     if (currentJobKey) {
         renderSkills(currentJobKey);
@@ -5766,7 +5970,83 @@ lv.addEventListener("input", () => {
     if (shortName) {
         document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
     }
-});
+}
+
+function updateDungeonOptions() {
+    if (!expansionSelect || !dungeonSelect) return;
+
+    const expansion = expansionSelect.value;
+    const list = DUNGEONS[expansion] ?? [];
+    const isHighLevel = expansion.startsWith("high_");
+
+    const dungeonWrapper = dungeonSelect.closest(".select-wrapper");
+
+    dungeonSelect.innerHTML = "";
+
+    // ハイレベルIDは2個目のID選択を隠す
+    if (dungeonWrapper) {
+        dungeonWrapper.hidden = isHighLevel;
+    }
+
+    // ハイレベルIDの場合：Lvだけで即反映
+    if (isHighLevel) {
+        if (list.length > 0) {
+            setDisplayLevel(list[0].syncLevel);
+            clearUltimateActive();
+            setIdSelectActive(true);
+        }
+        return;
+    }
+
+    // レベリングIDの場合：最初に「IDを選択」を入れる
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "IDを選択";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    dungeonSelect.appendChild(placeholder);
+
+    list.forEach(dungeon => {
+        const option = document.createElement("option");
+        option.value = dungeon.syncLevel;
+        option.textContent = `${dungeon.name} / Lv${dungeon.syncLevel}シンク`;
+        dungeonSelect.appendChild(option);
+    });
+
+    // レベリングIDカテゴリを選んだだけではLvを変えない
+    clearUltimateActive();
+    setIdSelectActive(false);
+}
+
+if (expansionSelect && dungeonSelect) {
+    expansionSelect.addEventListener("change", updateDungeonOptions);
+
+    dungeonSelect.addEventListener("change", () => {
+        if (!dungeonSelect.value) return;
+
+        setDisplayLevel(Number(dungeonSelect.value));
+        clearUltimateActive();
+        setIdSelectActive(true);
+    });
+
+    updateDungeonOptions();
+}
+
+// ============================
+// レベルスライダー関連　スライダー廃止につき一旦停止
+// ============================
+//lv.addEventListener("input", () => {
+//    lvValue.textContent = lv.value;
+//
+//    if (currentJobKey) {
+//        renderSkills(currentJobKey);
+//    }
+//
+//    const shortName = currentJobEl.textContent.split(" / ")[1] || "";
+//    if (shortName) {
+//        document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
+//    }
+//});
 
 //初期表示
 lvValue.textContent = lv.value;
@@ -5786,32 +6066,63 @@ if (statusBar.hidden) {
 // ============================
 const jobButtons = document.querySelectorAll(".job");
 
+// ============================
+// 選択ジョブクリア
+// ============================
+const clearJobButton = document.getElementById("clearJobButton");
+setIdSelectActive(false);
 
+if (clearJobButton) {
+    clearJobButton.addEventListener("click", () => {
+        // 選択中ジョブを解除
+        currentJobKey = null;
+
+        // ジョブボタンの光りを消す
+        document.querySelectorAll(".job").forEach(button => {
+            button.classList.remove("active", "active-tank", "active-healer", "active-dps");
+        });
+
+        // 絶ボタンのactiveを消す
+        document.querySelectorAll(".ultimate-buttons button").forEach(button => {
+            button.classList.remove("active");
+        });
+
+        // 表示欄を隠す
+        statusBar.hidden = true;
+        skillArea.hidden = true;
+
+        // スキル一覧を空にする
+        skillList.innerHTML = "";
+
+        // 現在ジョブ名を空にする
+        currentJobEl.textContent = "";
+
+        // タイトルを戻す
+        document.title = "JQG-ジョブクイックガイド";
+    });
+}
+
+// ============================
 // 絶モード
+// ============================
 document.querySelectorAll(".ultimate-buttons button").forEach(btn => {
     btn.addEventListener("click", () => {
         if (!currentJobKey) return;
 
         const level = Number(btn.dataset.level);
 
-        // スライダーの値を変更
-        lv.value = level;
-        lvValue.textContent = level;
+        // Lv変更
+        setDisplayLevel(level);
 
-        // active切り替え
+        // 絶ボタンのactive切り替え
         document.querySelectorAll(".ultimate-buttons button").forEach(b => {
             b.classList.remove("active");
         });
+
         btn.classList.add("active");
 
-        // 再描画
-        renderSkills(currentJobKey);
-
-        // タイトル更新
-        const shortName = currentJobEl.textContent.split(" / ")[1] || "";
-        if (shortName) {
-            document.title = `JQG ▶ ${shortName} Lv${lv.value}`;
-        }
+        // 絶を選んだのでID側を「IDを選択」に戻す
+        resetDungeonSelectPlaceholder();
     });
 });
 

@@ -87,17 +87,121 @@ body.dark #themeToggle::before{
   transform:translateX(24px);
 }
 
+/* ヘッダー：フッターと同じ全幅帯 */
+.site-header {
+    width: 100%;
+    margin: 0;
+    padding: 0;
 
+    background: linear-gradient(
+        180deg,
+        rgba(210,190,140,0.35),
+        rgba(190,170,120,0.25)
+    );
+
+    border-top: 1px solid rgba(180,150,90,0.2);
+    border-bottom: 1px solid rgba(180,150,90,0.2);
+}
+
+/* ヘッダーの中身 */
+.header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 24px 22px;
+    position: relative;
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+/* タイトル周り */
+.site-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0;
+    flex-wrap: wrap;
+
+
+    padding-right: 120px; /* 右上トグルの逃げ場 */
+}
+
+.title-subtitle {
+    font-size: 1rem;      /* ← pの時くらい */
+    font-weight: 500;
+    opacity: 0.95;
+    white-space: nowrap;
+}
+
+.site-title-area h1 {
+    margin: 0;
+}
+
+.site-title-area .subtitle {
+    margin: 0;
+}
+
+/* トグルを右上に固定 */
+.site-header .theme-switch {
+    position: absolute;
+    top: 28px;
+    right: 24px;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ダーク用 */
+body.dark .site-header {
+    background: linear-gradient(
+        180deg,
+        rgba(120,95,35,0.45),
+        rgba(70,50,15,0.35)
+    );
+
+    border-top: 1px solid rgba(255,215,0,0.25);
+    border-bottom: 1px solid rgba(255,215,0,0.25);
+}
+
+@media (max-width: 600px) {
+    .header-inner {
+        padding: 18px 12px 18px;
+    }
+
+    .site-title {
+        font-size: 1.5rem;
+        padding-right: 90px;
+        gap: 6px;
+    }
+
+    .title-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .site-header .theme-switch {
+        top: 22px;
+        right: 12px;
+        transform: scale(0.95);
+    }
+}
+
+/* ボディ */
 
 body{
+    margin: 0;
     background: var(--bg-main);
     color: var(--text-main);
 }
 
 /* ジョブボタン */
 .job-icon{
-  width:40px;
-  height:40px;
+  width: 48px;
+  height:48px;
   display:block;
 }
 
@@ -135,15 +239,62 @@ body{
   border-color: #862a2a;
 }
 
-/* レベルスライダー */
+/* クリアボタン */
+.job-toolbar {
+    margin: 16px 0 8px;
+}
+
+#clearJobButton {
+    background: #e8d8b5;
+    color: #5a3e1b;
+    border: 1px solid #b88a3b;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+#clearJobButton:hover {
+    background: #f2e6c9;
+}
+
+body.dark #clearJobButton {
+    background: #111;
+    color: #c9a24a;
+    border: 1px solid #c9a24a;
+}
+
+body.dark #clearJobButton:hover {
+    box-shadow: 0 0 6px rgba(201,162,74,0.6);
+}
+
+/* レベル関連 */
+.level-display {
+    font-weight: bold;
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
 #statusBar {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
     margin: 10px 0;
 }
 
-/* レベルスライダー初期状態 */
+.filter-row {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 0.95rem;
+    opacity: 0.95;
+}
+
+
 #statusBar[hidden] {
     display: none;
 }
@@ -481,8 +632,26 @@ body.dark select:hover {
         inset 0 0 8px rgba(201,162,74,0.3);
 }
 
+/* 絶ボタン */
 .ultimate-buttons {
     margin-bottom: 10px;
+}
+
+/*　押すと光る　*/
+.ultimate-buttons button.active {
+    background: #b88a3b;
+    color: #fff;
+    box-shadow:
+        0 0 6px rgba(184,138,59,0.6),
+        inset 0 0 4px rgba(255,255,255,0.25);
+}
+
+body.dark .ultimate-buttons button.active {
+    background: #c9a24a;
+    color: #111;
+    box-shadow:
+        0 0 8px rgba(201,162,74,0.8),
+        inset 0 0 6px rgba(255,255,255,0.25);
 }
 
 .ultimate-buttons button {
@@ -516,6 +685,42 @@ body.dark .ultimate-buttons button:hover {
     box-shadow: 0 0 6px rgba(201,162,74,0.6);
 }
 
+/* ID選択中の光 */
+/* ID選択中：ライト */
+.select-wrapper.active-id select {
+    background: #f2e6c9;
+    color: #5a3e1b;
+    border: 2px solid #d28b00;
+
+    box-shadow:
+        0 0 8px rgba(210, 139, 0, 0.65),
+        inset 0 0 6px rgba(210, 139, 0, 0.18);
+}
+
+/* ID選択中：ライトの▼ */
+.select-wrapper.active-id::after {
+    color: #8a5a00;
+    font-weight: bold;
+}
+
+/* ID選択中：ダーク */
+body.dark .select-wrapper.active-id select {
+    background: #111;
+    color: #ffd56a;
+    border: 2px solid #c9a24a;
+
+    box-shadow:
+        0 0 10px rgba(201, 162, 74, 0.85),
+        inset 0 0 8px rgba(201, 162, 74, 0.25);
+}
+
+/* ID選択中：ダークの▼ */
+body.dark .select-wrapper.active-id::after {
+    color: #ffd56a;
+    font-weight: bold;
+}
+
+/* カードタイプ */
 .skill-card.role-action-card {
     border-left: 4px solid #4f7cff;
     background: linear-gradient(
@@ -525,6 +730,7 @@ body.dark .ultimate-buttons button:hover {
     );
 }
 
+/* バッジ */
 .role-badge {
     display: inline-block;
     font-size: 0.7rem;
@@ -629,4 +835,61 @@ body.dark .type-badge-pet {
     background: rgba(170, 140, 255, 0.18);
     border: 1px solid rgba(170, 140, 255, 0.5);
     color: #c8b6ff;
+}
+
+/* ジョブクエ系 */
+.skill-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.learn-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 999px;
+}
+
+.learn-badge-jobquest {
+    background: rgba(210, 139, 0, 0.14);
+    border: 1px solid rgba(210, 139, 0, 0.45);
+    color: #8a5a00;
+}
+
+body.dark .learn-badge-jobquest {
+    background: rgba(201, 162, 74, 0.14);
+    border: 1px solid rgba(201, 162, 74, 0.5);
+    color: #ffd56a;
+}
+
+/* かり  */
+.intro-text,
+.usage-note {
+    margin: 1rem 0;
+    max-width: none;
+    line-height: 1.7;
+}
+
+.intro-text p,
+.usage-note p {
+    margin: 0.3rem 0;
+}
+
+.usage-note {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.beta-note {
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+.select-wrapper[hidden] {
+    display: none !important;
 }
