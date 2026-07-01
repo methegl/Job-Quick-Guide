@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.73");
+console.log("app.js loaded v0.7");
 
 // ============================
 // DOM取得
@@ -1591,17 +1591,22 @@ const CASTER_ROLE_ACTIONS = [
 // ロールアクションをジョブ用スキルに変換
 // =====================
 function makeRoleSkill(job, skill) {
-    const jobSpecificNotes = skill.jobNotes?.[job] ?? [];
-
     return {
         ...skill,
 
+        // ジョブ別データとして扱う
         job,
+
+        // ID被り防止
         id: `${job.toLowerCase()}_${skill.id}`,
+
+        // 元のロールアクションIDも残しておくと後で便利
         roleActionId: skill.id,
+
+        // 念のためtypeはrole固定
         type: "role",
 
-        notes: [
+         notes: [
             ...(skill.notes ?? []),
             ...jobSpecificNotes
         ],
@@ -5361,20 +5366,21 @@ function makeRoleSkill(job, skill) {
 
 //============
 //確認用
+//
+//console.table(PLD_SKILLS.filter(skill => skill.type === "role"));
+//console.table(WHM_SKILLS.filter(skill => skill.type === "role"));
+//console.table(MNK_SKILLS.filter(skill => skill.type === "role"));
+//console.table(BRD_SKILLS.filter(skill => skill.type === "role"));
+//console.table(BLM_SKILLS.filter(skill => skill.type === "role"));
+
+//console.log(
+//    BLM_SKILLS.find(skill => skill.id === "blm_role_swiftcast")?.notes
+//);
+
+//console.log(
+//    RDM_SKILLS.find(skill => skill.id === "rdm_role_swiftcast")?.notes
+//);
 //===========
-console.table(PLD_SKILLS.filter(skill => skill.type === "role"));
-console.table(WHM_SKILLS.filter(skill => skill.type === "role"));
-console.table(MNK_SKILLS.filter(skill => skill.type === "role"));
-console.table(BRD_SKILLS.filter(skill => skill.type === "role"));
-console.table(BLM_SKILLS.filter(skill => skill.type === "role"));
-
-console.log(
-    BLM_SKILLS.find(skill => skill.id === "blm_role_swiftcast")?.notes
-);
-
-console.log(
-    RDM_SKILLS.find(skill => skill.id === "rdm_role_swiftcast")?.notes
-);
 
 
 //============
