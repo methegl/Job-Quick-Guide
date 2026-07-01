@@ -515,3 +515,24 @@ body.dark .ultimate-buttons button {
 body.dark .ultimate-buttons button:hover {
     box-shadow: 0 0 6px rgba(201,162,74,0.6);
 }
+
+.skill-card.role-action-card {
+    border-left: 4px solid #7aa7ff;
+    background: linear-gradient(
+        135deg,
+        rgba(122, 167, 255, 0.10),
+        rgba(255, 255, 255, 0.03)
+    );
+}
+
+.role-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: rgba(122, 167, 255, 0.18);
+    border: 1px solid rgba(122, 167, 255, 0.5);
+    color: #9dbdff;
+    margin-bottom: 4px;
+}

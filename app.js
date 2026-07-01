@@ -1,4 +1,4 @@
-console.log("app.js loaded v0.73");
+console.log("app.js loaded v0.74");
 
 // ============================
 // DOM取得
@@ -21,7 +21,7 @@ const burstSelect = document.getElementById("burstFilter");
 sortSelect.addEventListener("change", () => {
     sortMode = sortSelect.value;
 
-    console.log("currentJobKey", currentJobKey);
+    //console.log("currentJobKey", currentJobKey);
 
     //今選ばれてるジョブで描画しなおす
     if (currentJobKey) {
@@ -1449,8 +1449,7 @@ const CASTER_ROLE_ACTIONS = [
     requirements: [],
 
     notes: [
-        "MP管理用ロールアクション",
-        "MPが減るジョブでは早めに使うと後半が安定しやすい"
+        "MP管理用ロールアクション。早め・リキャスト毎に使うと後半が安定しやすい"
     ],
 
     jobNotes: {
@@ -1467,8 +1466,6 @@ const CASTER_ROLE_ACTIONS = [
             "連続蘇生役になることがあるので、MP管理は火力以上にPT継続へ直結する"
         ],
         PCT: [
-            "ピクトマンサーは長期戦でMPが減るため、早めに使ってMPを維持したい",
-            "蘇生は持たないが、MP切れで攻撃が止まると大きなロスになる"
         ]
     },
 
@@ -1515,13 +1512,10 @@ const CASTER_ROLE_ACTIONS = [
     requirements: [],
 
     notes: [
-        "次に実行する魔法を詠唱なしで使える",
-        "蘇生魔法・長詠唱魔法・移動中の詠唱補助に使う"
     ],
 
     jobNotes: {
         BLM: [
-            "黒魔道士は蘇生を持たないため、主に長詠唱魔法や移動補助に使う",
             "三連魔中は三連魔が優先して消費される"
         ],
         SMN: [
@@ -5458,7 +5452,7 @@ const JOB_SKILLS = {
             });
         }
 
-        console.log(displaySkills.map(s => s.name));
+        //console.log(displaySkills.map(s => s.name));
         
 
         if (sortMode === "level") {
@@ -5497,7 +5491,7 @@ const JOB_SKILLS = {
             // ============================
 
             const card = document.createElement("div");
-            card.className = "skill-card";
+            card.className = `skill-card ${skill.type === "role" ? "role-action-card" : ""}`;
 
             const top = document.createElement("div");
             top.className = "skill-top";
@@ -5624,6 +5618,13 @@ const JOB_SKILLS = {
             icon.alt = skill.name;
 
             const titleWrap = document.createElement("div");
+
+            if (skill.type === "role") {
+                const roleBadge = document.createElement("span");
+                roleBadge.className = "role-badge";
+                roleBadge.textContent = "ROLE ACTION";
+                titleWrap.appendChild(roleBadge);
+            }
 
             const nameEl = document.createElement("div");
             nameEl.className = "skill-name";
@@ -5837,7 +5838,7 @@ jobButtons.forEach(button => {
         const fullName = button.dataset.name;
 
         const hasSkills = !!JOB_SKILLS[shortName];
-        console.log("clicked shortName=", shortName, "hasSkills=", hasSkills);
+        //console.log("clicked shortName=", shortName, "hasSkills=", hasSkills);
 
         skillArea.hidden = !hasSkills;
 
