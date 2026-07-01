@@ -1591,22 +1591,17 @@ const CASTER_ROLE_ACTIONS = [
 // ロールアクションをジョブ用スキルに変換
 // =====================
 function makeRoleSkill(job, skill) {
+    const jobSpecificNotes = skill.jobNotes?.[job] ?? [];
+
     return {
         ...skill,
 
-        // ジョブ別データとして扱う
         job,
-
-        // ID被り防止
         id: `${job.toLowerCase()}_${skill.id}`,
-
-        // 元のロールアクションIDも残しておくと後で便利
         roleActionId: skill.id,
-
-        // 念のためtypeはrole固定
         type: "role",
 
-         notes: [
+        notes: [
             ...(skill.notes ?? []),
             ...jobSpecificNotes
         ],
