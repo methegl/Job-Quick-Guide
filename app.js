@@ -5491,7 +5491,7 @@ const JOB_SKILLS = {
             // ============================
 
             const card = document.createElement("div");
-            card.className = `skill-card ${skill.type === "role" ? "role-action-card" : ""}`;
+            card.className = `skill-card type-${skill.type ?? "player"}`;
 
             const top = document.createElement("div");
             top.className = "skill-top";
@@ -5619,11 +5619,16 @@ const JOB_SKILLS = {
 
             const titleWrap = document.createElement("div");
 
-            if (skill.type === "role") {
-                const roleBadge = document.createElement("span");
-                roleBadge.className = "role-badge";
-                roleBadge.textContent = "ROLE ACTION";
-                titleWrap.appendChild(roleBadge);
+            const TYPE_BADGE_LABEL = {
+                role: "ROLE ACTION",
+                pet: "PET ACTION"
+            };
+
+            if (skill.type === "role" || skill.type === "pet") {
+                const typeBadge = document.createElement("span");
+                typeBadge.className = `type-badge type-badge-${skill.type}`;
+                typeBadge.textContent = TYPE_BADGE_LABEL[skill.type];
+                titleWrap.appendChild(typeBadge);
             }
 
             const nameEl = document.createElement("div");
